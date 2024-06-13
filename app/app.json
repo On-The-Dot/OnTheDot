@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "on-the-dot",
-    "slug": "on-the-dot",
+    "name": "app",
+    "slug": "app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
