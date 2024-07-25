@@ -11,24 +11,60 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        headerShown: true,
+        headerStyle: { backgroundColor: "rgba(150,126,118,0.59)" },
+        headerTitleStyle: { fontWeight: 800, color: 'white', fontSize: 27 },
+        tabBarStyle: {
+          backgroundColor: "rgba(183,196,207,1.00)"
+        }
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: "Calendar",
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            <TabBarIcon
+              name={focused ? "calendar" : "calendar-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="groups"
+        options={{
+          title: "Study Groups",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "search" : "search-outline"}
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: "Progress",
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <TabBarIcon
+              name={focused ? "bar-chart" : "bar-chart"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: "Settings",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "settings" : "settings"}
+              color={color}
+            />
           ),
         }}
       />
