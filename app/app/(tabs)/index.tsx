@@ -1,43 +1,49 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Calendar } from "react-native-calendars";
+import { ThemedView } from "@/components/ThemedView";
+import TaskBox from "./TaskBox"; // Make sure the path is correct
 
 export default function HomeScreen() {
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const onDayPress = (day) => {
+    setSelectedDate(day.dateString);
+  };
+
   return (
     <ThemedView style={styles.container}>
       <View style={styles.calendarContainer}>
         <Calendar
           style={styles.calendar}
+          onDayPress={onDayPress}
           theme={{
-            backgroundColor: '#f9f9f9', // Light background for a modern look
-            calendarBackground: '#ffffff', // White background for the calendar
-            textSectionTitleColor: '#6d6e71', // Light gray color for section titles
-            selectedDayBackgroundColor: '#007bff', // Blue for selected day
-            selectedDayTextColor: '#ffffff', // White text for selected day
-            todayTextColor: '#ff5722', // Orange for today
-            dayTextColor: '#333333', // Dark gray for day text
-            textDisabledColor: '#b0b0b0', // Light gray for disabled days
-            dotColor: '#007bff', // Blue dots for events
-            selectedDotColor: '#ffffff', // White dots for selected day
-            arrowColor: '#007bff', // Blue arrows
-            monthTextColor: '#333333', // Dark gray for month text
-            indicatorColor: '#007bff', // Blue indicator
-            textDayFontFamily: 'Arial', // Modern font
-            textMonthFontFamily: 'Arial', // Modern font
-            textDayHeaderFontFamily: 'Arial', // Modern font
-            textDayFontWeight: '400', // Regular weight
-            textMonthFontWeight: '600', // Semi-bold weight
-            textDayHeaderFontWeight: '400', // Regular weight
-            textDayFontSize: 14, // Smaller font size
-            textMonthFontSize: 16, // Slightly larger font size
-            textDayHeaderFontSize: 14, // Header font size
+            backgroundColor: "#f9f9f9", 
+            calendarBackground: "#ffffff", 
+            textSectionTitleColor: "#6d6e71", 
+            selectedDayBackgroundColor: "#007bff",
+            selectedDayTextColor: "#ffffff", 
+            todayTextColor: "#ff5722", 
+            dayTextColor: "#333333",
+            textDisabledColor: "#b0b0b0", 
+            dotColor: "#007bff", 
+            selectedDotColor: "#ffffff", 
+            arrowColor: "#007bff", 
+            monthTextColor: "#333333", 
+            indicatorColor: "#007bff", 
+            textDayFontFamily: "Arial", 
+            textMonthFontFamily: "Arial", 
+            textDayHeaderFontFamily: "Arial", 
+            textDayFontWeight: "400",
+            textMonthFontWeight: "600",
+            textDayHeaderFontWeight: "400",
+            textDayFontSize: 14,
+            textMonthFontSize: 16,
+            textDayHeaderFontSize: 14,
           }}
         />
       </View>
+      <TaskBox selectedDate={selectedDate} />
     </ThemedView>
   );
 }
@@ -45,22 +51,21 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 5, // Remove padding to minimize space
+    padding: 2,
   },
   calendarContainer: {
     marginTop: 20,
-    marginBottom: 20, // Space below the calendar
-    paddingBottom: 0, // Remove bottom padding
-    paddingHorizontal: 10, // Add horizontal padding if needed
+    marginBottom: 15, // Adjusted bottom margin to separate calendar and tasks
+    paddingHorizontal: 1,
   },
   calendar: {
-    borderWidth: 0, // Remove border
-    borderRadius: 10, // Rounded corners for modern look
-    elevation: 2, // Subtle shadow for depth
-    shadowColor: '#000', // Shadow color
-    shadowOffset: { width: 0, height: 2 }, // Shadow offset
-    shadowOpacity: 0.1, // Shadow opacity
-    shadowRadius: 4, // Shadow radius
-    height: 350,
+    borderWidth: 0,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    height: 360,
   },
 });
