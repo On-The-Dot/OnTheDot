@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, View, Text, Modal, Pressable, TouchableOpacity } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { ThemedView } from "@/components/ThemedView";
-import TaskBox from "../TaskBox"; // Make sure the path is correct
+import TaskBox from "../TaskBox"; 
 import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
@@ -129,13 +129,14 @@ const styles = StyleSheet.create({
   calendar: {
     borderWidth: 0,
     borderRadius: 10,
-    elevation: 2,
+    elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     height: 360,
     backgroundColor: '#E8EEF4', 
+     
   },
   addButton: {
     position: 'absolute',

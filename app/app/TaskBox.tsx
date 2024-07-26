@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     marginBottom: 20,
+    elevation: 5,
   },
   header: {
     fontSize: 18,
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     borderColor: "#dddddd",
     borderWidth: 1,
-    elevation: 2,
+    elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
