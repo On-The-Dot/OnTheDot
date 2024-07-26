@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Modal, Pressable, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 import { ThemedView } from "@/components/ThemedView";
-import TaskBox from "../TaskBox"; 
+import TaskBox from "../TaskBox";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
@@ -73,7 +80,10 @@ export default function HomeScreen() {
             {/* Add Task */}
             <View style={styles.modalItem}>
               <Text style={styles.modalButtonText}>Add Task </Text>
-              <TouchableOpacity style={styles.modalButton} onPress={() => console.log('Add Task')}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => console.log("Add Task")}
+              >
                 <Ionicons name="create" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
@@ -81,7 +91,10 @@ export default function HomeScreen() {
             {/* Add Work Shift */}
             <View style={styles.modalItem}>
               <Text style={styles.modalButtonText}>Add Work Shift </Text>
-              <TouchableOpacity style={styles.modalButton} onPress={() => console.log('Add Work Shift')}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => console.log("Add Work Shift")}
+              >
                 <Ionicons name="briefcase" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
@@ -89,7 +102,10 @@ export default function HomeScreen() {
             {/* Study Groups */}
             <View style={styles.modalItem}>
               <Text style={styles.modalButtonText}>Study Groups </Text>
-              <TouchableOpacity style={styles.modalButton} onPress={() => console.log('Study Groups')}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => console.log("Study Groups")}
+              >
                 <Ionicons name="book" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
@@ -97,7 +113,10 @@ export default function HomeScreen() {
             {/* Sync Calendars */}
             <View style={styles.modalItem}>
               <Text style={styles.modalButtonText}>Sync Calendars </Text>
-              <TouchableOpacity style={styles.modalButton} onPress={() => console.log('Sync Calendars')}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => console.log("Sync Calendars")}
+              >
                 <Ionicons name="sync" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
@@ -105,7 +124,10 @@ export default function HomeScreen() {
             {/* Exit */}
             <View style={styles.modalItem}>
               <Text style={styles.exitButtonText}>Exit </Text>
-              <TouchableOpacity style={styles.exitButton} onPress={handleCloseModal}>
+              <TouchableOpacity
+                style={styles.exitButton}
+                onPress={handleCloseModal}
+              >
                 <Ionicons name="exit" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
@@ -135,65 +157,64 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     height: 360,
-    backgroundColor: '#E8EEF4', 
-     
+    backgroundColor: "#E8EEF4",
   },
   addButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#8e44ad', 
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 10, 
+    backgroundColor: "#8e44ad",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 10,
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)', 
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContainer: {
-    position: 'absolute',
-    bottom: 65, 
+    position: "absolute",
+    bottom: 65,
     right: 20,
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+    flexDirection: "column",
+    alignItems: "flex-end",
   },
   modalItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10, 
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
   modalButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#8e44ad', 
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 10, 
-    elevation: 10, 
+    backgroundColor: "#8e44ad",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+    elevation: 10,
   },
   modalButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
   },
   exitButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: '#8e44ad', 
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#8e44ad",
+    alignItems: "center",
+    justifyContent: "center",
     marginLeft: 10,
-    elevation: 10, 
+    elevation: 10,
   },
   exitButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
   },
 });
