@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { collection, getDocs, query, where } from "firebase/firestore/lite";
-import {db} from '../config/firebase_setup'
+import { db } from "./config/firebase_setup";
 
 export default function TaskBox({ selectedDate }) {
   const [tasks, setTasks] = useState([]);
