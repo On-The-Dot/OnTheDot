@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Modal, Pressable, ScrollView 
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
 import { Ionicons } from "@expo/vector-icons";
-import fetchTasks from "../../components/fetchTasks"; 
+import fetchTasks from "../../components/fetchTasks"
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -27,12 +27,13 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const fetchTasksData = async () => {
-      const tasksData = await fetchTasks(selectedDate);
-      setTasks(tasksData);
+        const tasksData = await fetchTasks(selectedDate, calendarId);
+        setTasks(tasksData);
     };
 
     fetchTasksData();
-  }, [selectedDate, calendarId]);
+}, [selectedDate, calendarId]);
+
 
   return (
     <View style={styles.container}>
@@ -125,7 +126,7 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.modalItem}>
-              <Text style={styles.exitButtonText}>Exit</Text>
+              <Text style={styles.exitButtonText}>Exit </Text>
               <TouchableOpacity
                 style={styles.exitButton}
                 onPress={handleCloseModal}
@@ -219,6 +220,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    marginLeft: 10,
     backgroundColor: "#8e44ad",
     alignItems: "center",
     justifyContent: "center",
