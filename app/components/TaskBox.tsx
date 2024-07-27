@@ -5,8 +5,8 @@ interface Task {
   id: string;
   description: string;
   location: string;
-  start_time: { toDate: () => Date };
-  end_time: { toDate: () => Date };
+  start_time: { toDate: () => Date } | undefined;
+  end_time: { toDate: () => Date } | undefined;
   category: string;
 }
 
@@ -18,19 +18,23 @@ const TaskBox: React.FC<TaskBoxProps> = ({ tasks }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {tasks.length > 0 ? (
-        tasks.map((task) => (
-          <View key={task.id} style={styles.taskItem}>
-            <Text style={styles.taskText}>{task.description}</Text>
-            <Text style={styles.taskDetails}>Location: {task.location}</Text>
-            <Text style={styles.taskDetails}>
-              Start: {new Date(task.start_time.toDate()).toLocaleString()}
-            </Text>
-            <Text style={styles.taskDetails}>
-              End: {new Date(task.end_time.toDate()).toLocaleString()}
-            </Text>
-            <Text style={styles.taskDetails}>Category: {task.category}</Text>
-          </View>
-        ))
+        tasks.map((task) => {
+          const startTime = task.start_time?.toDate ? task.start_time.toDate() : new Date();
+          const endTime = task.end_time?.toDate ? task.end_time.toDate() : new Date();
+          return (
+            <View key={task.id} style={styles.taskItem}>
+              <Text style={styles.taskText}>{task.description}</Text>
+              <Text style={styles.taskDetails}>Location: {task.location}</Text>
+              <Text style={styles.taskDetails}>
+                Start: {startTime.toLocaleString()}
+              </Text>
+              <Text style={styles.taskDetails}>
+                End: {endTime.toLocaleString()}
+              </Text>
+              <Text style={styles.taskDetails}>Category: {task.category}</Text>
+            </View>
+          );
+        })
       ) : (
         <Text style={styles.noTasks}>No tasks for this day</Text>
       )}

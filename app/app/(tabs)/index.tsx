@@ -3,7 +3,13 @@ import { StyleSheet, View, Text, TouchableOpacity, Modal, Pressable, ScrollView 
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
 import { Ionicons } from "@expo/vector-icons";
-import fetchTasks from "../../components/fetchTasks"
+import fetchTasks from "../../components/fetchTasks";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '@/components/navigation';
+
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -12,6 +18,8 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [calendarId, setCalendarId] = useState('SKoQ3595MveSj0e8f1C7');
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  
 
   const onDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
@@ -23,6 +31,11 @@ export default function HomeScreen() {
 
   const handleCloseModal = () => {
     setModalVisible(false);
+  };
+
+  const navigateToAddTask = () => {
+    console.log("Navigating to AddTask");
+    navigation.navigate('AddTask'); 
   };
 
   useEffect(() => {
@@ -89,7 +102,7 @@ export default function HomeScreen() {
               <Text style={styles.modalButtonText}>Add Task</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Add Task")}
+                onPress={navigateToAddTask}
               >
                 <Ionicons name="create" size={24} color="#ffffff" />
               </TouchableOpacity>
@@ -156,7 +169,7 @@ const styles = StyleSheet.create({
   },
   calendar: {
     borderWidth: 0,
-    borderRadius: 15, // More rounded corners
+    borderRadius: 15, 
     height: 360,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 5 },
