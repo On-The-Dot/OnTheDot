@@ -2,7 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import TabLayout from "./(tabs)/_layout"; 
-import AddTaskScreen from "./(tabs)/AddTaskScreen"; 
+import AddTaskScreen from "../components/AddTaskScreen"; 
 import { RootStackParamList } from "../components/navigation"; 
 
 const Stack = createStackNavigator<RootStackParamList>();

@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, Modal, Pressable, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+  ScrollView,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
 import { Ionicons } from "@expo/vector-icons";
 import fetchTasks from "../../components/fetchTasks";
 import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '@/components/navigation';
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@/components/navigation";
 
-
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Tabs'>;
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Tabs">;
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -17,9 +24,8 @@ export default function HomeScreen() {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [calendarId, setCalendarId] = useState('SKoQ3595MveSj0e8f1C7');
+  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  
 
   const onDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
@@ -35,18 +41,17 @@ export default function HomeScreen() {
 
   const navigateToAddTask = () => {
     console.log("Navigating to AddTask");
-    navigation.navigate('AddTask'); 
+    navigation.navigate("AddTask");
   };
 
   useEffect(() => {
     const fetchTasksData = async () => {
-        const tasksData = await fetchTasks(selectedDate, calendarId);
-        setTasks(tasksData);
+      const tasksData = await fetchTasks(selectedDate, calendarId);
+      setTasks(tasksData);
     };
 
     fetchTasksData();
-}, [selectedDate, calendarId]);
-
+  }, [selectedDate, calendarId]);
 
   return (
     <View style={styles.container}>
@@ -169,7 +174,7 @@ const styles = StyleSheet.create({
   },
   calendar: {
     borderWidth: 0,
-    borderRadius: 15, 
+    borderRadius: 15,
     height: 360,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 5 },
