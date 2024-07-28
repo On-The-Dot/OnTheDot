@@ -1,43 +1,56 @@
-import React, { Component } from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
-import PieChart from "react-native-pie-chart";
+import { Dimensions } from "react-native";
+import { PieChart } from "react-native-chart-kit";
 
-export default class TestChart extends Component {
-  render() {
-    const widthAndHeight = 250;
-    const series = [123, 321, 123, 789, 537];
-    const sliceColor = ["#fbd203", "#ffb300", "#ff9100", "#ff6c00", "#ff3c00"];
+const data = [
+  {
+    name: "school",
+    hours: 20,
+    color: "#967e76",
+    legendFontColor: "#7F7F7F",
+    legendFontSize: 15,
+  },
+  {
+    name: "work",
+    hours: 16,
+    color: "#baa29a",
+    legendFontColor: "#7F7F7F",
+    legendFontSize: 15,
+  },
+  {
+    name: "clubs",
+    hours: 8,
+    color: "rgba(215, 192, 174, 1)",
+    legendFontColor: "#7F7F7F",
+    legendFontSize: 15,
+  },
+  {
+    name: "sports/exercise",
+    hours: 10,
+    color: "rgb(238, 227, 203)",
+    legendFontColor: "#7F7F7F",
+    legendFontSize: 15,
+  },
+];
 
-    return (
-      <ScrollView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <Text style={styles.title}>Basic</Text>
-          <PieChart
-            widthAndHeight={widthAndHeight}
-            series={series}
-            sliceColor={sliceColor}
-          />
-          <Text style={styles.title}>Doughnut</Text>
-          <PieChart
-            widthAndHeight={widthAndHeight}
-            series={series}
-            sliceColor={sliceColor}
-            coverRadius={0.45}
-            coverFill={"#FFF"}
-          />
-        </View>
-      </ScrollView>
-    );
-  }
+const chartConfig = {
+  backgroundGradientFrom: "#1E2923",
+  backgroundGradientFromOpacity: 0,
+  backgroundGradientTo: "#08130D",
+  backgroundGradientToOpacity: 0.5,
+  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+};
+
+export function TimeSpentChart() {
+  return (
+    <PieChart
+      data={data}
+      width={Dimensions.get("window").width}
+      height={220}
+      chartConfig={chartConfig}
+      accessor={"hours"} // weekly
+      backgroundColor={"transparent"}
+      paddingLeft={"0"}
+      // center={[10, 50]}
+    />
+  );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    margin: 10,
-  },
-});

@@ -1,9 +1,9 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs } from "expo-router";
+import React from "react";
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -14,10 +14,10 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: true,
         headerStyle: { backgroundColor: "rgba(150,126,118,0.59)" },
-        headerTitleStyle: { fontWeight: 800, color: 'white', fontSize: 27 },
+        headerTitleStyle: { fontWeight: 800, color: "white", fontSize: 27 },
         tabBarStyle: {
-          backgroundColor: "rgba(183,196,207,1.00)"
-        }
+          backgroundColor: "rgba(183,196,207,1.00)",
+        },
       }}
     >
       <Tabs.Screen
@@ -45,9 +45,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="analytics"
         options={{
-          title: "Progress",
+          title: "Progress Tracker",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "bar-chart" : "bar-chart"}
