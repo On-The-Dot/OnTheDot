@@ -48,14 +48,15 @@ const styles = StyleSheet.create({
   },
   taskItem: {
     backgroundColor: "#E8EEF4", 
-    padding: 15,
-    borderRadius: 5,
+    paddingVertical: 10,
+    borderRadius: 10,
     marginBottom: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    paddingHorizontal: 5,
   },
   taskText: {
     fontSize: 16,
