@@ -1,24 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
   Text,
+  TouchableOpacity,
   Modal,
   Pressable,
-  TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { ThemedView } from "@/components/ThemedView";
-import TaskBox from "../TaskBox";
+import TaskBox from "../../components/TaskBox";
 import { Ionicons } from "@expo/vector-icons";
+import fetchTasks from "../../components/fetchTasks";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@/components/navigation";
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Tabs">;
 
 export default function HomeScreen() {
-  const [selectedDate, setSelectedDate] = useState(
+  const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
+  const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const onDayPress = (day) => {
+  const onDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
   };
 
@@ -30,14 +39,28 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
+  const navigateToAddTask = () => {
+    console.log("Navigating to AddTask");
+    navigation.navigate("AddTask");
+  };
+
+  useEffect(() => {
+    const fetchTasksData = async () => {
+      const tasksData = await fetchTasks(selectedDate, calendarId);
+      setTasks(tasksData);
+    };
+
+    fetchTasksData();
+  }, [selectedDate, calendarId]);
+
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.calendarContainer}>
         <Calendar
           style={styles.calendar}
           onDayPress={onDayPress}
           theme={{
-            backgroundColor: "#E8EEF4",
+            backgroundColor: "rgba(245,240,228,1.00)",
             calendarBackground: "#E8EEF4",
             textSectionTitleColor: "#6d6e71",
             selectedDayBackgroundColor: "#007bff",
@@ -62,13 +85,16 @@ export default function HomeScreen() {
           }}
         />
       </View>
-      <TaskBox selectedDate={selectedDate} />
+      <View style={styles.taskContainer}>
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <TaskBox tasks={tasks} />
+        </ScrollView>
+      </View>
 
       <TouchableOpacity style={styles.addButton} onPress={handleAddPress}>
         <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
 
-      {/* Modal for More Options - Add Button */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -77,20 +103,18 @@ export default function HomeScreen() {
       >
         <Pressable style={styles.overlay} onPress={handleCloseModal}>
           <View style={styles.modalContainer}>
-            {/* Add Task */}
             <View style={styles.modalItem}>
-              <Text style={styles.modalButtonText}>Add Task </Text>
+              <Text style={styles.modalButtonText}>Add Task</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Add Task")}
+                onPress={navigateToAddTask}
               >
                 <Ionicons name="create" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
-            {/* Add Work Shift */}
             <View style={styles.modalItem}>
-              <Text style={styles.modalButtonText}>Add Work Shift </Text>
+              <Text style={styles.modalButtonText}>Add Work Shift</Text>
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={() => console.log("Add Work Shift")}
@@ -99,9 +123,8 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Study Groups */}
             <View style={styles.modalItem}>
-              <Text style={styles.modalButtonText}>Study Groups </Text>
+              <Text style={styles.modalButtonText}>Study Groups</Text>
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={() => console.log("Study Groups")}
@@ -110,9 +133,8 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Sync Calendars */}
             <View style={styles.modalItem}>
-              <Text style={styles.modalButtonText}>Sync Calendars </Text>
+              <Text style={styles.modalButtonText}>Sync Calendars</Text>
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={() => console.log("Sync Calendars")}
@@ -121,7 +143,6 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Exit */}
             <View style={styles.modalItem}>
               <Text style={styles.exitButtonText}>Exit </Text>
               <TouchableOpacity
@@ -134,30 +155,40 @@ export default function HomeScreen() {
           </View>
         </Pressable>
       </Modal>
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 2,
+    backgroundColor: "rgba(245,240,228,1.00)",
+    // Background color for the whole screen
   },
   calendarContainer: {
-    marginTop: 20,
-    marginBottom: 15,
-    paddingHorizontal: 1,
+    paddingHorizontal: 10,
+    marginTop: 10,
+    backgroundColor: "rgba(245,240,228,1.00)",
+    zIndex: 1,
+    elevation: 1,
   },
   calendar: {
     borderWidth: 0,
-    borderRadius: 10,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 15,
     height: 360,
-    backgroundColor: "#E8EEF4",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  taskContainer: {
+    flex: 1,
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+  scrollViewContent: {
+    paddingBottom: 20,
   },
   addButton: {
     position: "absolute",
@@ -207,10 +238,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    marginLeft: 10,
     backgroundColor: "#8e44ad",
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 10,
     elevation: 10,
   },
   exitButtonText: {
