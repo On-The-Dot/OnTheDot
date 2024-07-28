@@ -9,20 +9,14 @@ import {
 } from "react-native";
 import { db } from "@/app/config/firebase_setup";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import DateTimePicker from "@react-native-community/datetimepicker"; 
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "@/components/navigation";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import ModalDropdown from "react-native-modal-dropdown";
 
-type AddTaskScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  "AddTask"
->;
-
-type Props = {
-  navigation: AddTaskScreenNavigationProp;
+type AddTaskScreenProps = {
+  closeTaskModal: () => void;
 };
 
-const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
+const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [startDate, setStartDate] = useState(new Date());
@@ -30,6 +24,7 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
   const [deadlineDate, setDeadlineDate] = useState(new Date());
   const [deadlineTime, setDeadlineTime] = useState(new Date());
   const [category, setCategory] = useState("work");
+  const [priority, setPriority] = useState("no priority");
   const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7"); // Set the default calendar ID
 
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
@@ -57,6 +52,11 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
         )
       );
 
+      /*default deadlines in case the user does not want to specify
+      category: school -> next week same day and time
+      category: work -> the next friday at 5pm (end of day)
+      category: other -> same day at 8pm (end of day)
+      */
       let deadlineTimestamp;
       if (category === "school") {
         const schoolDeadline = new Date(startDate);
@@ -64,12 +64,14 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
         deadlineTimestamp = Timestamp.fromDate(schoolDeadline);
       } else if (category === "work") {
         const workDeadline = new Date(startDate);
-        workDeadline.setDate(workDeadline.getDate() + ((5 - workDeadline.getDay() + 7) % 7));
+        workDeadline.setDate(
+          workDeadline.getDate() + ((5 - workDeadline.getDay() + 7) % 7)
+        );
         workDeadline.setHours(17, 0, 0, 0); // 5 PM on the next Friday
         deadlineTimestamp = Timestamp.fromDate(workDeadline);
       } else {
         const otherDeadline = new Date(startDate);
-        otherDeadline.setHours(17, 0, 0, 0); // 5 PM on the same day
+        otherDeadline.setHours(20, 0, 0, 0); // 8 PM on the same day
         deadlineTimestamp = Timestamp.fromDate(otherDeadline);
       }
 
@@ -79,12 +81,14 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
         start_time: startTimestamp,
         deadline: deadlineTimestamp,
         category,
+        priority,
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
       });
 
-      Alert.alert("Success", "Task added successfully");
-      navigation.goBack(); 
+      Alert.alert("Success", "Task added successfully", [
+        { text: "OK", onPress: () => closeTaskModal() },
+      ]);
     } catch (error) {
       console.error("Error adding task: ", error);
       Alert.alert("Error", "Failed to add task");
@@ -115,6 +119,9 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity onPress={closeTaskModal} style={styles.backButton}>
+        <Text style={styles.backButtonText}>←</Text>
+      </TouchableOpacity>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Description</Text>
         <TextInput
@@ -134,127 +141,147 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
           onChangeText={setLocation}
         />
       </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Start Date</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowStartDatePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {startDate ? startDate.toDateString() : "Select Date"}
-          </Text>
-        </TouchableOpacity>
-        {showStartDatePicker && (
-          <DateTimePicker
-            mode="date"
-            value={startDate}
-            display="default"
-            onChange={(event, selectedDate) =>
-              onChangeDate(
-                event,
-                selectedDate,
-                setStartDate,
-                setShowStartDatePicker
-              )
-            }
-          />
-        )}
+      
+      <View style={styles.dateTimeContainer}>
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Start Date</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowStartDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {startDate ? startDate.toDateString() : "Select Date"}
+            </Text>
+          </TouchableOpacity>
+          {showStartDatePicker && (
+            <DateTimePicker
+              mode="date"
+              value={startDate}
+              display="default"
+              onChange={(event, selectedDate) =>
+                onChangeDate(
+                  event,
+                  selectedDate,
+                  setStartDate,
+                  setShowStartDatePicker
+                )
+              }
+            />
+          )}
+        </View>
+        
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Time</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowStartTimePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {startTime ? startTime.toTimeString().slice(0, 5) : "Select Time"}
+            </Text>
+          </TouchableOpacity>
+          {showStartTimePicker && (
+            <DateTimePicker
+              mode="time"
+              value={startTime}
+              display="default"
+              onChange={(event, selectedTime) =>
+                onChangeTime(
+                  event,
+                  selectedTime,
+                  setStartTime,
+                  setShowStartTimePicker
+                )
+              }
+            />
+          )}
+        </View>
       </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Start Time</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowStartTimePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {startTime ? startTime.toTimeString().slice(0, 5) : "Select Time"}
-          </Text>
-        </TouchableOpacity>
-        {showStartTimePicker && (
-          <DateTimePicker
-            mode="time"
-            value={startTime}
-            display="default"
-            onChange={(event, selectedTime) =>
-              onChangeTime(
-                event,
-                selectedTime,
-                setStartTime,
-                setShowStartTimePicker
-              )
-            }
-          />
-        )}
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Deadline Date</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowDeadlineDatePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {deadlineDate ? deadlineDate.toDateString() : "Select Date"}
-          </Text>
-        </TouchableOpacity>
-        {showDeadlineDatePicker && (
-          <DateTimePicker
-            mode="date"
-            value={deadlineDate}
-            display="default"
-            onChange={(event, selectedDate) =>
-              onChangeDate(
-                event,
-                selectedDate,
-                setDeadlineDate,
-                setShowDeadlineDatePicker
-              )
-            }
-          />
-        )}
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Deadline Time</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowDeadlineTimePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {deadlineTime ? deadlineTime.toTimeString().slice(0, 5) : "Select Time"}
-          </Text>
-        </TouchableOpacity>
-        {showDeadlineTimePicker && (
-          <DateTimePicker
-            mode="time"
-            value={deadlineTime}
-            display="default"
-            onChange={(event, selectedTime) =>
-              onChangeTime(
-                event,
-                selectedTime,
-                setDeadlineTime,
-                setShowDeadlineTimePicker
-              )
-            }
-          />
-        )}
+      <View style={styles.dateTimeContainer}>
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Deadline Date</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDeadlineDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {deadlineDate ? deadlineDate.toDateString() : "Select Date"}
+            </Text>
+          </TouchableOpacity>
+          {showDeadlineDatePicker && (
+            <DateTimePicker
+              mode="date"
+              value={deadlineDate}
+              display="default"
+              onChange={(event, selectedDate) =>
+                onChangeDate(
+                  event,
+                  selectedDate,
+                  setDeadlineDate,
+                  setShowDeadlineDatePicker
+                )
+              }
+            />
+          )}
+        </View>
+     
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Time</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDeadlineTimePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {deadlineTime
+                ? deadlineTime.toTimeString().slice(0, 5)
+                : "Select Time"}
+            </Text>
+          </TouchableOpacity>
+          {showDeadlineTimePicker && (
+            <DateTimePicker
+              mode="time"
+              value={deadlineTime}
+              display="default"
+              onChange={(event, selectedTime) =>
+                onChangeTime(
+                  event,
+                  selectedTime,
+                  setDeadlineTime,
+                  setShowDeadlineTimePicker
+                )
+              }
+            />
+          )}
+        </View>
       </View>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Category</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Task Category"
-          value={category}
-          onChangeText={setCategory}
+        <ModalDropdown
+          options={["work", "school", "other"]}
+          defaultValue={category}
+          style={styles.dropdown}
+          textStyle={styles.dropdownText}
+          dropdownStyle={styles.dropdownStyle}
+          onSelect={(index, value) => setCategory(value as string)}
         />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-        <Text style={styles.buttonText}>Add Task</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Priority</Text>
+        <ModalDropdown
+          options={["high", "medium", "low", "no priority"]}
+          defaultValue={priority}
+          style={styles.dropdown}
+          textStyle={styles.dropdownText}
+          dropdownStyle={styles.dropdownStyle}
+          onSelect={(index, value) => setPriority(value as string)}
+        />
+      </View>
+
+      <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
+        <Text style={styles.addButtonText}>Add Task</Text>
       </TouchableOpacity>
     </View>
   );
@@ -263,51 +290,77 @@ const AddTaskScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f9f9f9",
+    padding: 16,
+    backgroundColor: "rgba(245,240,228,1.00)",
+  },
+  backButton: {
+    marginBottom: 20,
+  },
+  backButtonText: {
+    fontSize: 25,
+    color: "#8e44ad",
   },
   inputContainer: {
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
     marginBottom: 8,
   },
   input: {
-    height: 45,
-    borderColor: "#ddd",
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
-    fontSize: 16,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: "#D7C0AE",
+  },
+  dateTimeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  inputContainerHalf: {
+    width: "48%",
   },
   datePickerButton: {
-    height: 45,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "#fff",
+    height: 40,
     justifyContent: "center",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: "#D7C0AE",
   },
   datePickerText: {
     fontSize: 16,
-    color: "#333",
   },
-  button: {
-    height: 45,
-    backgroundColor: "#0066cc",
+  dropdown: {
+    height: 40,
+    justifyContent: "center",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: "#D7C0AE",
+  },
+  dropdownText: {
+    fontSize: 16,
+  },
+  dropdownStyle: {
+    width: "100%",
+  },
+  addButton: {
+    height: 50,
+    backgroundColor: "#8e44ad",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 5,
+    marginTop: 20,
   },
-  buttonText: {
+  addButtonText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
   },
 });
 

@@ -10,22 +10,27 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import fetchTasks from "../../components/fetchTasks";
-import { useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "@/components/navigation";
-
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, "Tabs">;
+import AddTaskScreen from "../../components/AddTaskScreen";
+import SyncCalendarScreen from "../../components/SyncCalendarScreen";
+import { format, parseISO } from "date-fns";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
+    format(new Date(), "yyyy-MM-dd")
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false);
+  const [syncCalendarkModalVisible, setSyncCalendarVisible] = useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
+
+  //hard-coded the calendarId for now but this should auto-populate
+  //depending on which user is logged in
   const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+
+  //format date: July 27 2024
+  const formattedDate = format(parseISO(selectedDate), "MMMM dd yyyy");
 
   const onDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
@@ -39,9 +44,20 @@ export default function HomeScreen() {
     setModalVisible(false);
   };
 
-  const navigateToAddTask = () => {
-    console.log("Navigating to AddTask");
-    navigation.navigate("AddTask");
+  const openTaskModal = () => {
+    setTaskModalVisible(true);
+  };
+
+  const closeTaskModal = () => {
+    setTaskModalVisible(false);
+  };
+
+  const openSyncCalendarModal = () => {
+    setSyncCalendarVisible(true);
+  };
+
+  const closeSyncCalendarModal = () => {
+    setSyncCalendarVisible(false);
   };
 
   useEffect(() => {
@@ -65,12 +81,12 @@ export default function HomeScreen() {
             textSectionTitleColor: "#6d6e71",
             selectedDayBackgroundColor: "#007bff",
             selectedDayTextColor: "#ffffff",
-            todayTextColor: "#ff5722",
+            todayTextColor: "#8e44ad",
             dayTextColor: "#333333",
             textDisabledColor: "#b0b0b0",
             dotColor: "#007bff",
             selectedDotColor: "#ffffff",
-            arrowColor: "#007bff",
+            arrowColor: "#8e44ad",
             monthTextColor: "#333333",
             indicatorColor: "#007bff",
             textDayFontFamily: "Arial",
@@ -85,6 +101,7 @@ export default function HomeScreen() {
           }}
         />
       </View>
+      <Text style={styles.selectedDay}>{formattedDate}</Text>
       <View style={styles.taskContainer}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <TaskBox tasks={tasks} />
@@ -107,19 +124,19 @@ export default function HomeScreen() {
               <Text style={styles.modalButtonText}>Add Task</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={navigateToAddTask}
+                onPress={openTaskModal}
               >
                 <Ionicons name="create" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.modalItem}>
-              <Text style={styles.modalButtonText}>Add Work Shift</Text>
+              <Text style={styles.modalButtonText}>Analysis</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Add Work Shift")}
+                onPress={() => console.log("Analysis Page")}
               >
-                <Ionicons name="briefcase" size={24} color="#ffffff" />
+                <MaterialCommunityIcons name="chart-bubble" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
@@ -137,9 +154,9 @@ export default function HomeScreen() {
               <Text style={styles.modalButtonText}>Sync Calendars</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Sync Calendars")}
+                onPress={openSyncCalendarModal}
               >
-                <Ionicons name="sync" size={24} color="#ffffff" />
+                <FontAwesome name="qrcode" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
@@ -149,12 +166,31 @@ export default function HomeScreen() {
                 style={styles.exitButton}
                 onPress={handleCloseModal}
               >
-                <Ionicons name="exit" size={24} color="#ffffff" />
+                <Feather name ="x" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
         </Pressable>
       </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={taskModalVisible}
+        onRequestClose={closeTaskModal}
+      >
+        <AddTaskScreen closeTaskModal={closeTaskModal} />
+      </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={false}
+        visible={syncCalendarkModalVisible}
+        onRequestClose={closeSyncCalendarModal}
+      >
+        <SyncCalendarScreen closeSyncCalendarModal={closeSyncCalendarModal} />
+      </Modal>
+      
     </View>
   );
 }
@@ -181,6 +217,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 10,
+  },
+  selectedDay: {
+    marginTop: 10,
+    marginBottom: 0,
+    fontSize: 16,
+    fontWeight: "500",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    fontFamily: "Arial",
   },
   taskContainer: {
     flex: 1,
@@ -233,19 +279,26 @@ const styles = StyleSheet.create({
   modalButtonText: {
     color: "#ffffff",
     fontSize: 16,
+    fontWeight: "500",
   },
   exitButton: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    marginLeft: 10,
     backgroundColor: "#8e44ad",
     alignItems: "center",
     justifyContent: "center",
+    marginLeft: 10,
     elevation: 10,
   },
   exitButtonText: {
     color: "#ffffff",
     fontSize: 16,
+    fontWeight: "500",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
