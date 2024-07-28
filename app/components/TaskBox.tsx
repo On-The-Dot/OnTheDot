@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   taskItem: {
     backgroundColor: "#E8EEF4", 
-    padding: 15,
+    paddingVertical: 10,
     borderRadius: 10,
     marginBottom: 10,
     shadowColor: "#000",
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
   },
   taskText: {
     fontSize: 16,

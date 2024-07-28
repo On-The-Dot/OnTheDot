@@ -141,7 +141,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
           onChangeText={setLocation}
         />
       </View>
-
+      
       <View style={styles.dateTimeContainer}>
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Start Date</Text>
@@ -169,9 +169,9 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             />
           )}
         </View>
-
+        
         <View style={styles.inputContainerHalf}>
-          <Text style={styles.label}>Start Time</Text>
+          <Text style={styles.label}>Time</Text>
           <TouchableOpacity
             style={styles.datePickerButton}
             onPress={() => setShowStartTimePicker(true)}
@@ -225,9 +225,9 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             />
           )}
         </View>
-
+     
         <View style={styles.inputContainerHalf}>
-          <Text style={styles.label}>Deadline Time</Text>
+          <Text style={styles.label}>Time</Text>
           <TouchableOpacity
             style={styles.datePickerButton}
             onPress={() => setShowDeadlineTimePicker(true)}

@@ -10,25 +10,27 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import fetchTasks from "../../components/fetchTasks";
-import AddTaskScreen from "../../components/AddTaskScreen"; 
-import {format, parseISO} from "date-fns";
+import AddTaskScreen from "../../components/AddTaskScreen";
+import SyncCalendarScreen from "../../components/SyncCalendarScreen";
+import { format, parseISO } from "date-fns";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false); 
+  const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false);
+  const [syncCalendarkModalVisible, setSyncCalendarVisible] = useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
 
-  //hard-coded the calendarId for now but this should auto-populate 
+  //hard-coded the calendarId for now but this should auto-populate
   //depending on which user is logged in
   const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
 
   //format date: July 27 2024
-  const formattedDate = format(parseISO(selectedDate), 'MMMM dd yyyy');
+  const formattedDate = format(parseISO(selectedDate), "MMMM dd yyyy");
 
   const onDayPress = (day: { dateString: string }) => {
     setSelectedDate(day.dateString);
@@ -50,6 +52,14 @@ export default function HomeScreen() {
     setTaskModalVisible(false);
   };
 
+  const openSyncCalendarModal = () => {
+    setSyncCalendarVisible(true);
+  };
+
+  const closeSyncCalendarModal = () => {
+    setSyncCalendarVisible(false);
+  };
+
   useEffect(() => {
     const fetchTasksData = async () => {
       const tasksData = await fetchTasks(selectedDate, calendarId);
@@ -57,7 +67,6 @@ export default function HomeScreen() {
     };
 
     fetchTasksData();
-
   }, [selectedDate, calendarId]);
 
   return (
@@ -122,12 +131,12 @@ export default function HomeScreen() {
             </View>
 
             <View style={styles.modalItem}>
-              <Text style={styles.modalButtonText}>Add Work Shift</Text>
+              <Text style={styles.modalButtonText}>Analysis</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Add Work Shift")}
+                onPress={() => console.log("Analysis Page")}
               >
-                <Ionicons name="briefcase" size={24} color="#ffffff" />
+                <MaterialCommunityIcons name="chart-bubble" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
@@ -145,9 +154,9 @@ export default function HomeScreen() {
               <Text style={styles.modalButtonText}>Sync Calendars</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Sync Calendars")}
+                onPress={openSyncCalendarModal}
               >
-                <Ionicons name="sync" size={24} color="#ffffff" />
+                <FontAwesome name="qrcode" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
 
@@ -157,7 +166,7 @@ export default function HomeScreen() {
                 style={styles.exitButton}
                 onPress={handleCloseModal}
               >
-                <Ionicons name="exit" size={24} color="#ffffff" />
+                <Feather name ="x" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -172,6 +181,16 @@ export default function HomeScreen() {
       >
         <AddTaskScreen closeTaskModal={closeTaskModal} />
       </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={false}
+        visible={syncCalendarkModalVisible}
+        onRequestClose={closeSyncCalendarModal}
+      >
+        <SyncCalendarScreen closeSyncCalendarModal={closeSyncCalendarModal} />
+      </Modal>
+      
     </View>
   );
 }
@@ -207,7 +226,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    fontFamily: 'Arial',
+    fontFamily: "Arial",
   },
   taskContainer: {
     flex: 1,
@@ -279,8 +298,7 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
-
