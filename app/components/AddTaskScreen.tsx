@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { db } from "@/app/config/firebase_setup";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import ModalDropdown from 'react-native-modal-dropdown';
+import ModalDropdown from "react-native-modal-dropdown";
 
 type AddTaskScreenProps = {
   closeTaskModal: () => void;
@@ -17,6 +24,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
   const [deadlineDate, setDeadlineDate] = useState(new Date());
   const [deadlineTime, setDeadlineTime] = useState(new Date());
   const [category, setCategory] = useState("work");
+  const [priority, setPriority] = useState("no priority");
   const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7"); // Set the default calendar ID
 
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
@@ -25,13 +33,24 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
   const [showDeadlineTimePicker, setShowDeadlineTimePicker] = useState(false);
 
   const handleAddTask = async () => {
-    if (!description || !location || !startDate || !startTime || !deadlineDate || !deadlineTime) {
+    if (
+      !description ||
+      !location ||
+      !startDate ||
+      !startTime ||
+      !deadlineDate ||
+      !deadlineTime
+    ) {
       Alert.alert("Validation Error", "Please fill all fields");
-      return; 
+      return;
     }
 
     try {
-      const startTimestamp = Timestamp.fromDate(new Date(startDate.setHours(startTime.getHours(), startTime.getMinutes())));
+      const startTimestamp = Timestamp.fromDate(
+        new Date(
+          startDate.setHours(startTime.getHours(), startTime.getMinutes())
+        )
+      );
 
       /*default deadlines in case the user does not want to specify
       category: school -> next week same day and time
@@ -45,8 +64,10 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
         deadlineTimestamp = Timestamp.fromDate(schoolDeadline);
       } else if (category === "work") {
         const workDeadline = new Date(startDate);
-        workDeadline.setDate(workDeadline.getDate() + ((5 - workDeadline.getDay() + 7) % 7));
-        workDeadline.setHours(17, 0, 0, 0); // 8 PM on the next Friday
+        workDeadline.setDate(
+          workDeadline.getDate() + ((5 - workDeadline.getDay() + 7) % 7)
+        );
+        workDeadline.setHours(17, 0, 0, 0); // 5 PM on the next Friday
         deadlineTimestamp = Timestamp.fromDate(workDeadline);
       } else {
         const otherDeadline = new Date(startDate);
@@ -60,12 +81,13 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
         start_time: startTimestamp,
         deadline: deadlineTimestamp,
         category,
+        priority,
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
       });
 
       Alert.alert("Success", "Task added successfully", [
-        { text: "OK", onPress: () => closeTaskModal() }
+        { text: "OK", onPress: () => closeTaskModal() },
       ]);
     } catch (error) {
       console.error("Error adding task: ", error);
@@ -120,103 +142,141 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
         />
       </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Start Date</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowStartDatePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {startDate ? startDate.toDateString() : "Select Date"}
-          </Text>
-        </TouchableOpacity>
-        {showStartDatePicker && (
-          <DateTimePicker
-            mode="date"
-            value={startDate}
-            display="default"
-            onChange={(event, selectedDate) =>
-              onChangeDate(event, selectedDate, setStartDate, setShowStartDatePicker)
-            }
-          />
-        )}
+      <View style={styles.dateTimeContainer}>
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Start Date</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowStartDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {startDate ? startDate.toDateString() : "Select Date"}
+            </Text>
+          </TouchableOpacity>
+          {showStartDatePicker && (
+            <DateTimePicker
+              mode="date"
+              value={startDate}
+              display="default"
+              onChange={(event, selectedDate) =>
+                onChangeDate(
+                  event,
+                  selectedDate,
+                  setStartDate,
+                  setShowStartDatePicker
+                )
+              }
+            />
+          )}
+        </View>
+
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Start Time</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowStartTimePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {startTime ? startTime.toTimeString().slice(0, 5) : "Select Time"}
+            </Text>
+          </TouchableOpacity>
+          {showStartTimePicker && (
+            <DateTimePicker
+              mode="time"
+              value={startTime}
+              display="default"
+              onChange={(event, selectedTime) =>
+                onChangeTime(
+                  event,
+                  selectedTime,
+                  setStartTime,
+                  setShowStartTimePicker
+                )
+              }
+            />
+          )}
+        </View>
       </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Start Time</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowStartTimePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {startTime ? startTime.toTimeString().slice(0, 5) : "Select Time"}
-          </Text>
-        </TouchableOpacity>
-        {showStartTimePicker && (
-          <DateTimePicker
-            mode="time"
-            value={startTime}
-            display="default"
-            onChange={(event, selectedTime) =>
-              onChangeTime(event, selectedTime, setStartTime, setShowStartTimePicker)
-            }
-          />
-        )}
-      </View>
+      <View style={styles.dateTimeContainer}>
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Deadline Date</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDeadlineDatePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {deadlineDate ? deadlineDate.toDateString() : "Select Date"}
+            </Text>
+          </TouchableOpacity>
+          {showDeadlineDatePicker && (
+            <DateTimePicker
+              mode="date"
+              value={deadlineDate}
+              display="default"
+              onChange={(event, selectedDate) =>
+                onChangeDate(
+                  event,
+                  selectedDate,
+                  setDeadlineDate,
+                  setShowDeadlineDatePicker
+                )
+              }
+            />
+          )}
+        </View>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Deadline Date</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowDeadlineDatePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {deadlineDate ? deadlineDate.toDateString() : "Select Date"}
-          </Text>
-        </TouchableOpacity>
-        {showDeadlineDatePicker && (
-          <DateTimePicker
-            mode="date"
-            value={deadlineDate}
-            display="default"
-            onChange={(event, selectedDate) =>
-              onChangeDate(event, selectedDate, setDeadlineDate, setShowDeadlineDatePicker)
-            }
-          />
-        )}
-      </View>
-
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Deadline Time</Text>
-        <TouchableOpacity
-          style={styles.datePickerButton}
-          onPress={() => setShowDeadlineTimePicker(true)}
-        >
-          <Text style={styles.datePickerText}>
-            {deadlineTime ? deadlineTime.toTimeString().slice(0, 5) : "Select Time"}
-          </Text>
-        </TouchableOpacity>
-        {showDeadlineTimePicker && (
-          <DateTimePicker
-            mode="time"
-            value={deadlineTime}
-            display="default"
-            onChange={(event, selectedTime) =>
-              onChangeTime(event, selectedTime, setDeadlineTime, setShowDeadlineTimePicker)
-            }
-          />
-        )}
+        <View style={styles.inputContainerHalf}>
+          <Text style={styles.label}>Deadline Time</Text>
+          <TouchableOpacity
+            style={styles.datePickerButton}
+            onPress={() => setShowDeadlineTimePicker(true)}
+          >
+            <Text style={styles.datePickerText}>
+              {deadlineTime
+                ? deadlineTime.toTimeString().slice(0, 5)
+                : "Select Time"}
+            </Text>
+          </TouchableOpacity>
+          {showDeadlineTimePicker && (
+            <DateTimePicker
+              mode="time"
+              value={deadlineTime}
+              display="default"
+              onChange={(event, selectedTime) =>
+                onChangeTime(
+                  event,
+                  selectedTime,
+                  setDeadlineTime,
+                  setShowDeadlineTimePicker
+                )
+              }
+            />
+          )}
+        </View>
       </View>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Category</Text>
         <ModalDropdown
-          options={['work', 'school', 'other']}
+          options={["work", "school", "other"]}
           defaultValue={category}
           style={styles.dropdown}
           textStyle={styles.dropdownText}
           dropdownStyle={styles.dropdownStyle}
           onSelect={(index, value) => setCategory(value as string)}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Priority</Text>
+        <ModalDropdown
+          options={["high", "medium", "low", "no priority"]}
+          defaultValue={priority}
+          style={styles.dropdown}
+          textStyle={styles.dropdownText}
+          dropdownStyle={styles.dropdownStyle}
+          onSelect={(index, value) => setPriority(value as string)}
         />
       </View>
 
@@ -253,6 +313,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    backgroundColor: "#D7C0AE",
+  },
+  dateTimeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  inputContainerHalf: {
+    width: "48%",
   },
   datePickerButton: {
     height: 40,
@@ -261,6 +330,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    backgroundColor: "#D7C0AE",
   },
   datePickerText: {
     fontSize: 16,
@@ -272,6 +342,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    backgroundColor: "#D7C0AE",
   },
   dropdownText: {
     fontSize: 16,
@@ -285,6 +356,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
+    marginTop: 20,
   },
   addButtonText: {
     color: "#fff",
