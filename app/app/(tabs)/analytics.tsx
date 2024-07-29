@@ -1,5 +1,12 @@
 import React from "react";
-import { StyleSheet, ScrollView, StatusBar, Text, View } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  StatusBar,
+  Text,
+  View,
+  TextInput,
+} from "react-native";
 // import ScrollableTabView from "react-native-scrollable-tab-view";
 import { TimeSpentChart } from "../../components/PieChart";
 // import { YStack } from "tamagui";
@@ -13,6 +20,11 @@ const ProgressTrackerPage = () => {
         <Text style={styles.title}>Weekly Time Spent</Text>
         <TimeSpentChart />
         <Text style={styles.title}>Tasks In Progress</Text>
+
+        <TextInput
+          style={styles.textbox}
+          defaultValue="Enter any notes here ..."
+        />
       </View>
     </ScrollView>
   );
@@ -29,6 +41,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     margin: 25,
+  },
+  textbox: {
+    height: 250,
+    width: 400,
+    borderColor: "lightgray",
+    borderWidth: 1,
   },
 });
 
