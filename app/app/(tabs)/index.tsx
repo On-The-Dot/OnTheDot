@@ -10,7 +10,12 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
-import { Ionicons, FontAwesome, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import {
+  Ionicons,
+  FontAwesome,
+  MaterialCommunityIcons,
+  Feather,
+} from "@expo/vector-icons";
 import fetchTasks from "../../components/fetchTasks";
 import AddTaskScreen from "../../components/AddTaskScreen";
 import SyncCalendarScreen from "../../components/SyncCalendarScreen";
@@ -22,7 +27,8 @@ export default function HomeScreen() {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false);
-  const [syncCalendarkModalVisible, setSyncCalendarVisible] = useState<boolean>(false);
+  const [syncCalendarkModalVisible, setSyncCalendarVisible] =
+    useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
 
   //hard-coded the calendarId for now but this should auto-populate
@@ -113,7 +119,7 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={handleCloseModal}
@@ -136,7 +142,11 @@ export default function HomeScreen() {
                 style={styles.modalButton}
                 onPress={() => console.log("Analysis Page")}
               >
-                <MaterialCommunityIcons name="chart-bubble" size={24} color="#ffffff" />
+                <MaterialCommunityIcons
+                  name="chart-bubble"
+                  size={24}
+                  color="#ffffff"
+                />
               </TouchableOpacity>
             </View>
 
@@ -166,7 +176,7 @@ export default function HomeScreen() {
                 style={styles.exitButton}
                 onPress={handleCloseModal}
               >
-                <Feather name ="x" size={24} color="#ffffff" />
+                <Feather name="x" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -190,7 +200,6 @@ export default function HomeScreen() {
       >
         <SyncCalendarScreen closeSyncCalendarModal={closeSyncCalendarModal} />
       </Modal>
-      
     </View>
   );
 }
@@ -230,7 +239,7 @@ const styles = StyleSheet.create({
   },
   taskContainer: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 2,
     marginTop: 10,
   },
   scrollViewContent: {
@@ -246,7 +255,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#8e44ad",
     alignItems: "center",
     justifyContent: "center",
-    elevation: 10,
+    elevation: 15,
   },
   overlay: {
     flex: 1,
