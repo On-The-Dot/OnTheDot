@@ -1,9 +1,9 @@
 import React from "react";
 import { Button, Text, TextInput, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { auth, db} from "@/app/config/firebase_setup";
-import { AuthError, AuthErrorCodes, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/app/config/firebase_setup";
+import { AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { Controller, useForm } from "react-hook-form";
-import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { doc, setDoc, Timestamp, addDoc, collection } from "firebase/firestore";
 
 interface FormValues {
     email: string;
@@ -38,20 +38,30 @@ function SignUp() {
                 values.password
             );
 
-            //getting the userID
+            // Extract user ID from credential
             const { uid } = userCredential.user;
 
-            // grabbing info and storing it to firebase
+            // Generate a unique calendar ID
+            const calendarDocRef = doc(collection(db, 'calendars'));
+
+            // Create a new calendar document
+            await setDoc(calendarDocRef, {
+                created_at: Timestamp.fromDate(new Date())
+            });
+
+            // Save additional user data and calendar ID to Firestore
             await setDoc(doc(db, 'users', uid), {
                 username: values.username,
                 firstName: values.firstName,
                 lastName: values.lastName,
                 school: values.school,
                 email: values.email,
-                created_at: Timestamp.fromDate(new Date())
+                created_at: Timestamp.fromDate(new Date()), 
+                calendarId: calendarDocRef.id // Store the calendar ID
             });
 
             console.log('User UID:', uid);
+            console.log('Calendar ID:', calendarDocRef.id);
             // Add additional logic here (e.g., navigate to another screen)
         } catch (e) {
             const error = e as AuthError;
