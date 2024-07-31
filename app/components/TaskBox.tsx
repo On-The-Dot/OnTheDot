@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Task {
   id: string;
@@ -12,9 +13,11 @@ interface Task {
 
 interface TaskBoxProps {
   tasks: Task[];
+  onEdit: (task: Task) => void;
+  onDelete: (taskId: string) => void;
 }
 
-const TaskBox: React.FC<TaskBoxProps> = ({ tasks }) => {
+const TaskBox: React.FC<TaskBoxProps> = ({ tasks, onEdit, onDelete }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {tasks.length > 0 ? (
@@ -32,6 +35,15 @@ const TaskBox: React.FC<TaskBoxProps> = ({ tasks }) => {
                 End: {endTime.toLocaleString()}
               </Text>
               <Text style={styles.taskDetails}>Category: {task.category}</Text>
+              <View style={styles.actionsContainer}>
+                <TouchableOpacity onPress={() => onEdit(task)} style={styles.actionButton}>
+                    <Ionicons name="create-outline" size={20} color="blue" />
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.actionButton}>
+                  <Ionicons name="trash-outline" size={20} color="red" />
+                </TouchableOpacity>
+              </View>
             </View>
           );
         })
@@ -47,7 +59,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   taskItem: {
-    backgroundColor: "#E8EEF4", 
+    backgroundColor: "#E8EEF4",
     paddingVertical: 10,
     borderRadius: 10,
     marginBottom: 10,
@@ -71,6 +83,14 @@ const styles = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     marginTop: 20,
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 10,
+  },
+  actionButton: {
+    marginHorizontal: 10,
   },
 });
 

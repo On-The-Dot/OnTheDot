@@ -1,9 +1,10 @@
 import React from "react";
 import { Button, Text, TextInput, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { auth, db } from "@/app/config/firebase_setup";
+import {auth, db} from "./config/firebase_setup";
 import { AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { Controller, useForm } from "react-hook-form";
 import { doc, setDoc, Timestamp, addDoc, collection } from "firebase/firestore";
+import { useNavigation } from '@react-navigation/native';
 
 interface FormValues {
     email: string;
@@ -27,6 +28,8 @@ function SignUp() {
     const { control, formState, handleSubmit } = useForm<FormValues>({
         defaultValues
     });
+
+    const navigation = useNavigation();
 
     const onSubmit = async (values: FormValues) => {
         console.log('Form Values:', values);
@@ -61,8 +64,9 @@ function SignUp() {
             });
 
             console.log('User UID:', uid);
-            console.log('Calendar ID:', calendarDocRef.id);
+            console.log('Calendar ID:', calendarDocRef.id); 
             // Add additional logic here (e.g., navigate to another screen)
+            navigation.navigate('LoginScreen' as never); 
         } catch (e) {
             const error = e as AuthError;
             console.error('Firebase Auth Error:', error.code, error.message);

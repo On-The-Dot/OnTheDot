@@ -7,6 +7,7 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
@@ -18,8 +19,11 @@ import {
 } from "@expo/vector-icons";
 import fetchTasks from "../../components/fetchTasks";
 import AddTaskScreen from "../../components/AddTaskScreen";
+import EditTaskScreen from "../../components/EditTaskScreen";
 import SyncCalendarScreen from "../../components/SyncCalendarScreen";
 import { format, parseISO } from "date-fns";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../config/firebase_setup";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -27,9 +31,12 @@ export default function HomeScreen() {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false);
+  const [editTaskModalVisible, setEditTaskModalVisible] =
+    useState<boolean>(false);
   const [syncCalendarkModalVisible, setSyncCalendarVisible] =
     useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [currentTask, setCurrentTask] = useState<any>(null);
 
   //hard-coded the calendarId for now but this should auto-populate
   //depending on which user is logged in
@@ -64,6 +71,45 @@ export default function HomeScreen() {
 
   const closeSyncCalendarModal = () => {
     setSyncCalendarVisible(false);
+  };
+
+  const openEditTaskModal = (task: any) => {
+    console.log("Opening edit modal for task:", task);
+    setCurrentTask(task);
+    setEditTaskModalVisible(true);
+  };
+
+  const closeEditTaskModal = () => {
+    setEditTaskModalVisible(false);
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this task?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              await deleteDoc(
+                doc(db, `calendars/${calendarId}/events`, taskId)
+              );
+              setTasks((prevTasks) =>
+                prevTasks.filter((task) => task.id !== taskId)
+              );
+            } catch (error) {
+              console.error("Error deleting task:", error);
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
   useEffect(() => {
@@ -110,7 +156,11 @@ export default function HomeScreen() {
       <Text style={styles.selectedDay}>{formattedDate}</Text>
       <View style={styles.taskContainer}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <TaskBox tasks={tasks} />
+          <TaskBox
+            tasks={tasks}
+            onEdit={openEditTaskModal}
+            onDelete={handleDeleteTask}
+          />
         </ScrollView>
       </View>
 
@@ -199,6 +249,18 @@ export default function HomeScreen() {
         onRequestClose={closeSyncCalendarModal}
       >
         <SyncCalendarScreen closeSyncCalendarModal={closeSyncCalendarModal} />
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={editTaskModalVisible}
+        onRequestClose={closeEditTaskModal}
+      >
+        <EditTaskScreen
+          closeEditTaskModal={closeEditTaskModal}
+          taskId={currentTask?.id}
+        />
       </Modal>
     </View>
   );

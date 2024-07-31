@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,15 +8,25 @@ import {
   Alert,
 } from "react-native";
 import { db } from "@/app/config/firebase_setup";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  updateDoc,
+  doc,
+  Timestamp,
+  getDoc,
+} from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ModalDropdown from "react-native-modal-dropdown";
 
-type AddTaskScreenProps = {
-  closeTaskModal: () => void;
+type EditTaskScreenProps = {
+  closeEditTaskModal: () => void;
+  taskId: string | undefined; // ID of the task to be edited
 };
 
-const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
+const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
+  closeEditTaskModal,
+  taskId,
+}) => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [startDate, setStartDate] = useState(new Date());
@@ -25,14 +35,49 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
   const [deadlineTime, setDeadlineTime] = useState(new Date());
   const [category, setCategory] = useState("work");
   const [priority, setPriority] = useState("no priority");
-  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7"); // Set the default calendar ID
 
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showDeadlineDatePicker, setShowDeadlineDatePicker] = useState(false);
   const [showDeadlineTimePicker, setShowDeadlineTimePicker] = useState(false);
 
-  const handleAddTask = async () => {
+  useEffect(() => {
+    console.log("Task ID:", taskId);
+    if (taskId) {
+      const fetchTaskDetails = async () => {
+        try {
+          const docRef = doc(
+            db,
+            `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`
+          );
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            const taskData = docSnap.data();
+            setDescription(taskData.description);
+            setLocation(taskData.location);
+            setStartDate(taskData.start_time.toDate());
+            setStartTime(taskData.start_time.toDate());
+            setDeadlineDate(taskData.deadline.toDate());
+            setDeadlineTime(taskData.deadline.toDate());
+            setCategory(taskData.category);
+            setPriority(taskData.priority);
+          } else {
+            Alert.alert("Error", "No such task exists");
+          }
+        } catch (error) {
+          console.error("Error fetching task details:", error);
+          Alert.alert("Error", "Failed to fetch task details");
+        }
+      };
+
+      fetchTaskDetails();
+    } else {
+      Alert.alert("Error", "Task ID is undefined");
+    }
+  }, [taskId]);
+
+  const handleEditTask = async () => {
     if (
       !description ||
       !location ||
@@ -51,47 +96,39 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
           startDate.setHours(startTime.getHours(), startTime.getMinutes())
         )
       );
+      const deadlineTimestamp = Timestamp.fromDate(
+        new Date(
+          startDate.setHours(startTime.getHours(), startTime.getMinutes())
+        )
+      );
 
-      /*default deadlines in case the user does not want to specify
-      category: school -> next week same day and time
-      category: work -> the next friday at 5pm (end of day)
-      category: other -> same day at 8pm (end of day)
-      */
-      let deadlineTimestamp;
-      if (category === "school") {
-        const schoolDeadline = new Date(startDate);
-        schoolDeadline.setDate(startDate.getDate() + 7);
-        deadlineTimestamp = Timestamp.fromDate(schoolDeadline);
-      } else if (category === "work") {
-        const workDeadline = new Date(startDate);
-        workDeadline.setDate(
-          workDeadline.getDate() + ((5 - workDeadline.getDay() + 7) % 7)
-        );
-        workDeadline.setHours(17, 0, 0, 0); // 5 PM on the next Friday
-        deadlineTimestamp = Timestamp.fromDate(workDeadline);
-      } else {
-        const otherDeadline = new Date(startDate);
-        otherDeadline.setHours(20, 0, 0, 0); // 8 PM on the same day
-        deadlineTimestamp = Timestamp.fromDate(otherDeadline);
+      const docRef = doc(db, `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        Alert.alert("Error", "No document to update");
+        return;
       }
 
-      await addDoc(collection(db, `calendars/${calendarId}/events`), {
-        description,
-        location,
-        start_time: startTimestamp,
-        deadline: deadlineTimestamp,
-        category,
-        priority,
-        created_at: Timestamp.now(),
-        updated_at: Timestamp.now(),
-      });
+      await updateDoc(
+        doc(db, `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`),
+        {
+          description,
+          location,
+          start_time: startTimestamp,
+          deadline: deadlineTimestamp,
+          category,
+          priority,
+          updated_at: Timestamp.now(),
+        }
+      );
 
-      Alert.alert("Success", "Task added successfully", [
-        { text: "OK", onPress: () => closeTaskModal() },
+      Alert.alert("Success", "Task updated successfully", [
+        { text: "OK", onPress: () => closeEditTaskModal() },
       ]);
     } catch (error) {
-      console.error("Error adding task: ", error);
-      Alert.alert("Error", "Failed to add task");
+      console.error("Error updating task: ", error);
+      Alert.alert("Error", "Failed to update task");
     }
   };
 
@@ -119,7 +156,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={closeTaskModal} style={styles.backButton}>
+      <TouchableOpacity onPress={closeEditTaskModal} style={styles.backButton}>
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
       <View style={styles.inputContainer}>
@@ -141,7 +178,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
           onChangeText={setLocation}
         />
       </View>
-      
+
       <View style={styles.dateTimeContainer}>
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Start Date</Text>
@@ -169,7 +206,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             />
           )}
         </View>
-        
+
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Time</Text>
           <TouchableOpacity
@@ -225,7 +262,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             />
           )}
         </View>
-     
+
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Time</Text>
           <TouchableOpacity
@@ -261,27 +298,27 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
         <ModalDropdown
           options={["work", "school", "other"]}
           defaultValue={category}
+          onSelect={(index, value) => setCategory(value)}
           style={styles.dropdown}
           textStyle={styles.dropdownText}
           dropdownStyle={styles.dropdownStyle}
-          onSelect={(index, value) => setCategory(value as string)}
         />
       </View>
 
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Priority</Text>
         <ModalDropdown
-          options={["high", "medium", "low", "no priority"]}
+          options={["no priority", "low", "medium", "high"]}
           defaultValue={priority}
+          onSelect={(index, value) => setPriority(value)}
           style={styles.dropdown}
           textStyle={styles.dropdownText}
           dropdownStyle={styles.dropdownStyle}
-          onSelect={(index, value) => setPriority(value as string)}
         />
       </View>
 
-      <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
-        <Text style={styles.addButtonText}>Create Task</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={handleEditTask}>
+        <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
     </View>
   );
@@ -294,18 +331,23 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(245,240,228,1.00)",
   },
   backButton: {
+    alignSelf: "flex-start",
     marginBottom: 20,
   },
   backButtonText: {
-    fontSize: 25,
+    fontSize: 20,
     color: "#8e44ad",
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: 15,
+  },
+  inputContainerHalf: {
+    flex: 1,
+    marginRight: 10,
   },
   label: {
     fontSize: 16,
-    marginBottom: 8,
+    marginBottom: 5,
   },
   input: {
     height: 40,
@@ -319,9 +361,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 20,
-  },
-  inputContainerHalf: {
-    width: "48%",
   },
   datePickerButton: {
     height: 40,
@@ -348,9 +387,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   dropdownStyle: {
-    width: "100%",
+    width: 150,
   },
-  addButton: {
+  saveButton: {
     height: 50,
     backgroundColor: "#8e44ad",
     justifyContent: "center",
@@ -358,10 +397,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 20,
   },
-  addButtonText: {
+  saveButtonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
   },
 });
 
-export default AddTaskScreen;
+export default EditTaskScreen;
