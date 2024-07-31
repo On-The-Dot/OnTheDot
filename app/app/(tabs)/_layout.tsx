@@ -32,24 +32,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="groups"
-        options={{
-          title: "Study Groups",
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? "search" : "search-outline"}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="analytics"
         options={{
           title: "Progress",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "bar-chart" : "bar-chart"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="groups"
+        options={{
+          title: "Study Groups",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "search" : "search-outline"}
               color={color}
             />
           ),
