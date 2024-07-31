@@ -52,7 +52,7 @@ export function TimeSpentChart() {
       width={Dimensions.get("window").width}
       height={220}
       chartConfig={chartConfig}
-      accessor={"hours"} // weekly
+      accessor={"tasks"} // weekly // instead of "hours" (future implementation?)
       backgroundColor={"transparent"}
       paddingLeft={"0"}
       // center={[10, 50]}

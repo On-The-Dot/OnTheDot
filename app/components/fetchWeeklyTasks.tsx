@@ -99,21 +99,21 @@ async function buildData() {
   const databaseData = [
     {
       name: "school",
-      hours: schoolSnapshot.data().count,
+      tasks: schoolSnapshot.data().count,
       color: "#967e76",
       legendFontColor: "#7F7F7F",
       legendFontSize: 15,
     },
     {
       name: "work",
-      hours: workSnapshot.data().count,
+      tasks: workSnapshot.data().count,
       color: "#baa29a",
       legendFontColor: "#7F7F7F",
       legendFontSize: 15,
     },
     {
       name: "other",
-      hours: otherSnapshot.data().count,
+      tasks: otherSnapshot.data().count,
       color: "rgba(215, 192, 174, 1)",
       legendFontColor: "#7F7F7F",
       legendFontSize: 15,
@@ -125,7 +125,7 @@ async function buildData() {
 
 var taskCount: {
   name: string;
-  hours: number;
+  tasks: number;
   color: string;
   legendFontColor: string;
   legendFontSize: number;
