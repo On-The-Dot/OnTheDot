@@ -20,7 +20,8 @@ import ModalDropdown from "react-native-modal-dropdown";
 
 type EditTaskScreenProps = {
   closeEditTaskModal: () => void;
-  taskId: string | undefined; // ID of the task to be edited
+  taskId: string | undefined;
+  
 };
 
 const EditTaskScreen: React.FC<EditTaskScreenProps> = ({

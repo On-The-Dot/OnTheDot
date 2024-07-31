@@ -37,6 +37,7 @@ export default function HomeScreen() {
     useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [currentTask, setCurrentTask] = useState<any>(null);
+  const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
 
   //hard-coded the calendarId for now but this should auto-populate
   //depending on which user is logged in
@@ -116,10 +117,67 @@ export default function HomeScreen() {
     const fetchTasksData = async () => {
       const tasksData = await fetchTasks(selectedDate, calendarId);
       setTasks(tasksData);
+      updateMarkedDates(tasksData);
     };
 
     fetchTasksData();
   }, [selectedDate, calendarId]);
+
+const updateMarkedDates = (tasks: any[]) => {
+    const dates: { [key: string]: any } = {};
+    
+    tasks.forEach((task) => {
+      const startDate = format(task.start_time.toDate(), "yyyy-MM-dd");
+      const endDate = format(task.deadline.toDate(), "yyyy-MM-dd");
+      let color;
+
+      switch (task.priority) {
+        case "high":
+          color = "red";
+          break;
+        case "medium":
+          color = "orange";
+          break;
+        case "low":
+          color = "yellow";
+          break;
+        default:
+          color = "grey";
+          break;
+      }
+
+      if (!dates[startDate]) {
+        dates[startDate] = { dots: [] };
+      }
+      if (!dates[endDate]) {
+        dates[endDate] = { dots: [] };
+      }
+
+      dates[startDate].dots.push({ color });
+      dates[endDate].dots.push({ color });
+
+      const dateRange = getDatesBetween(startDate, endDate);
+      dateRange.forEach((date) => {
+        if (!dates[date]) {
+          dates[date] = { dots: [] };
+        }
+        dates[date].dots.push({ color });
+      });
+    });
+    setMarkedDates(dates);
+  };
+
+  const getDatesBetween = (startDate: string, endDate: string) => {
+    const dates = [];
+    let currentDate = new Date(startDate);
+    const stopDate = new Date(endDate);
+    while (currentDate <= stopDate) {
+      dates.push(format(currentDate, "yyyy-MM-dd"));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+  };
+
 
   return (
     <View style={styles.container}>
@@ -127,6 +185,8 @@ export default function HomeScreen() {
         <Calendar
           style={styles.calendar}
           onDayPress={onDayPress}
+          markingType={"multi-dot"}
+          markedDates={markedDates}
           theme={{
             backgroundColor: "rgba(245,240,228,1.00)",
             calendarBackground: "#E8EEF4",
@@ -260,6 +320,7 @@ export default function HomeScreen() {
         <EditTaskScreen
           closeEditTaskModal={closeEditTaskModal}
           taskId={currentTask?.id}
+         
         />
       </Modal>
     </View>

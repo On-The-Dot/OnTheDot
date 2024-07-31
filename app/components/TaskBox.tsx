@@ -26,7 +26,7 @@ const TaskBox: React.FC<TaskBoxProps> = ({ tasks, onEdit, onDelete }) => {
         tasks.map((task) => {
           const startTime = task.start_time?.toDate ? task.start_time.toDate() : new Date();
           const endTime = task.deadline?.toDate ? task.deadline.toDate() : new Date();
-          const priorityColor = getPriorityColor(task.priority); // Determine color based on priority
+          const priorityColor = getPriorityColor(task.priority); 
 
           return (
             <View key={task.id} style={styles.taskItem}>
