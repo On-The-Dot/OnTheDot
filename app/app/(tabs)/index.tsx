@@ -7,14 +7,23 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Alert,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import TaskBox from "../../components/TaskBox";
-import { Ionicons, FontAwesome, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import {
+  Ionicons,
+  FontAwesome,
+  MaterialCommunityIcons,
+  Feather,
+} from "@expo/vector-icons";
 import fetchTasks from "../../components/fetchTasks";
 import AddTaskScreen from "../../components/AddTaskScreen";
+import EditTaskScreen from "../../components/EditTaskScreen";
 import SyncCalendarScreen from "../../components/SyncCalendarScreen";
 import { format, parseISO } from "date-fns";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../config/firebase_setup";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -22,8 +31,13 @@ export default function HomeScreen() {
   );
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false);
-  const [syncCalendarkModalVisible, setSyncCalendarVisible] = useState<boolean>(false);
+  const [editTaskModalVisible, setEditTaskModalVisible] =
+    useState<boolean>(false);
+  const [syncCalendarkModalVisible, setSyncCalendarVisible] =
+    useState<boolean>(false);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [currentTask, setCurrentTask] = useState<any>(null);
+  const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
 
   //hard-coded the calendarId for now but this should auto-populate
   //depending on which user is logged in
@@ -60,14 +74,110 @@ export default function HomeScreen() {
     setSyncCalendarVisible(false);
   };
 
+  const openEditTaskModal = (task: any) => {
+    console.log("Opening edit modal for task:", task);
+    setCurrentTask(task);
+    setEditTaskModalVisible(true);
+  };
+
+  const closeEditTaskModal = () => {
+    setEditTaskModalVisible(false);
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this task?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              await deleteDoc(
+                doc(db, `calendars/${calendarId}/events`, taskId)
+              );
+              setTasks((prevTasks) =>
+                prevTasks.filter((task) => task.id !== taskId)
+              );
+            } catch (error) {
+              console.error("Error deleting task:", error);
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   useEffect(() => {
     const fetchTasksData = async () => {
       const tasksData = await fetchTasks(selectedDate, calendarId);
       setTasks(tasksData);
+      updateMarkedDates(tasksData);
     };
 
     fetchTasksData();
   }, [selectedDate, calendarId]);
+
+const updateMarkedDates = (tasks: any[]) => {
+    const dates: { [key: string]: any } = {};
+    
+    tasks.forEach((task) => {
+      const startDate = format(task.start_time.toDate(), "yyyy-MM-dd");
+      const endDate = format(task.deadline.toDate(), "yyyy-MM-dd");
+      let color;
+
+      switch (task.priority) {
+        case "high":
+          color = "red";
+          break;
+        case "medium":
+          color = "orange";
+          break;
+        case "low":
+          color = "yellow";
+          break;
+        default:
+          color = "grey";
+          break;
+      }
+
+      if (!dates[startDate]) {
+        dates[startDate] = { dots: [] };
+      }
+      if (!dates[endDate]) {
+        dates[endDate] = { dots: [] };
+      }
+
+      dates[startDate].dots.push({ color });
+      dates[endDate].dots.push({ color });
+
+      const dateRange = getDatesBetween(startDate, endDate);
+      dateRange.forEach((date) => {
+        if (!dates[date]) {
+          dates[date] = { dots: [] };
+        }
+        dates[date].dots.push({ color });
+      });
+    });
+    setMarkedDates(dates);
+  };
+
+  const getDatesBetween = (startDate: string, endDate: string) => {
+    const dates = [];
+    let currentDate = new Date(startDate);
+    const stopDate = new Date(endDate);
+    while (currentDate <= stopDate) {
+      dates.push(format(currentDate, "yyyy-MM-dd"));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+  };
+
 
   return (
     <View style={styles.container}>
@@ -75,6 +185,8 @@ export default function HomeScreen() {
         <Calendar
           style={styles.calendar}
           onDayPress={onDayPress}
+          markingType={"multi-dot"}
+          markedDates={markedDates}
           theme={{
             backgroundColor: "rgba(245,240,228,1.00)",
             calendarBackground: "#E8EEF4",
@@ -104,7 +216,11 @@ export default function HomeScreen() {
       <Text style={styles.selectedDay}>{formattedDate}</Text>
       <View style={styles.taskContainer}>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <TaskBox tasks={tasks} />
+          <TaskBox
+            tasks={tasks}
+            onEdit={openEditTaskModal}
+            onDelete={handleDeleteTask}
+          />
         </ScrollView>
       </View>
 
@@ -113,7 +229,7 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       <Modal
-        animationType="fade"
+        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={handleCloseModal}
@@ -136,7 +252,11 @@ export default function HomeScreen() {
                 style={styles.modalButton}
                 onPress={() => console.log("Analysis Page")}
               >
-                <MaterialCommunityIcons name="chart-bubble" size={24} color="#ffffff" />
+                <MaterialCommunityIcons
+                  name="chart-bubble"
+                  size={24}
+                  color="#ffffff"
+                />
               </TouchableOpacity>
             </View>
 
@@ -166,7 +286,7 @@ export default function HomeScreen() {
                 style={styles.exitButton}
                 onPress={handleCloseModal}
               >
-                <Feather name ="x" size={24} color="#ffffff" />
+                <Feather name="x" size={24} color="#ffffff" />
               </TouchableOpacity>
             </View>
           </View>
@@ -190,7 +310,19 @@ export default function HomeScreen() {
       >
         <SyncCalendarScreen closeSyncCalendarModal={closeSyncCalendarModal} />
       </Modal>
-      
+
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={editTaskModalVisible}
+        onRequestClose={closeEditTaskModal}
+      >
+        <EditTaskScreen
+          closeEditTaskModal={closeEditTaskModal}
+          taskId={currentTask?.id}
+         
+        />
+      </Modal>
     </View>
   );
 }
@@ -230,7 +362,7 @@ const styles = StyleSheet.create({
   },
   taskContainer: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 2,
     marginTop: 10,
   },
   scrollViewContent: {
@@ -246,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#8e44ad",
     alignItems: "center",
     justifyContent: "center",
-    elevation: 10,
+    elevation: 15,
   },
   overlay: {
     flex: 1,
