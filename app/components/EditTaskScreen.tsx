@@ -42,26 +42,24 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
   const [showDeadlineTimePicker, setShowDeadlineTimePicker] = useState(false);
 
   useEffect(() => {
-    console.log("Task ID:", taskId);
     if (taskId) {
       const fetchTaskDetails = async () => {
         try {
-          const docRef = doc(
-            db,
-            `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`
-          );
+          const docRef = doc(db, `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
             const taskData = docSnap.data();
-            setDescription(taskData.description);
-            setLocation(taskData.location);
-            setStartDate(taskData.start_time.toDate());
-            setStartTime(taskData.start_time.toDate());
-            setDeadlineDate(taskData.deadline.toDate());
-            setDeadlineTime(taskData.deadline.toDate());
-            setCategory(taskData.category);
-            setPriority(taskData.priority);
+            setDescription(taskData.description || "");
+            setLocation(taskData.location || "");
+            const start = taskData.start_time.toDate();
+            const deadline = taskData.deadline.toDate();
+            setStartDate(new Date(start.getFullYear(), start.getMonth(), start.getDate()));
+            setStartTime(new Date(start.getFullYear(), start.getMonth(), start.getDate(), start.getHours(), start.getMinutes()));
+            setDeadlineDate(new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate()));
+            setDeadlineTime(new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate(), deadline.getHours(), deadline.getMinutes()));
+            setCategory(taskData.category || "work");
+            setPriority(taskData.priority || "no priority");
           } else {
             Alert.alert("Error", "No such task exists");
           }
@@ -93,12 +91,21 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
     try {
       const startTimestamp = Timestamp.fromDate(
         new Date(
-          startDate.setHours(startTime.getHours(), startTime.getMinutes())
+          startDate.getFullYear(),
+          startDate.getMonth(),
+          startDate.getDate(),
+          startTime.getHours(),
+          startTime.getMinutes()
         )
       );
+
       const deadlineTimestamp = Timestamp.fromDate(
         new Date(
-          startDate.setHours(startTime.getHours(), startTime.getMinutes())
+          deadlineDate.getFullYear(),
+          deadlineDate.getMonth(),
+          deadlineDate.getDate(),
+          deadlineTime.getHours(),
+          deadlineTime.getMinutes()
         )
       );
 
@@ -110,18 +117,15 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
         return;
       }
 
-      await updateDoc(
-        doc(db, `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`),
-        {
-          description,
-          location,
-          start_time: startTimestamp,
-          deadline: deadlineTimestamp,
-          category,
-          priority,
-          updated_at: Timestamp.now(),
-        }
-      );
+      await updateDoc(docRef, {
+        description,
+        location,
+        start_time: startTimestamp,
+        deadline: deadlineTimestamp,
+        category,
+        priority,
+        updated_at: Timestamp.now(),
+      });
 
       Alert.alert("Success", "Task updated successfully", [
         { text: "OK", onPress: () => closeEditTaskModal() },

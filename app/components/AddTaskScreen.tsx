@@ -25,7 +25,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
   const [deadlineTime, setDeadlineTime] = useState(new Date());
   const [category, setCategory] = useState("work");
   const [priority, setPriority] = useState("no priority");
-  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7"); // Set the default calendar ID
+  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
 
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
@@ -46,34 +46,26 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
     }
 
     try {
+      // Combine date and time for start and deadline
       const startTimestamp = Timestamp.fromDate(
         new Date(
-          startDate.setHours(startTime.getHours(), startTime.getMinutes())
+          startDate.getFullYear(),
+          startDate.getMonth(),
+          startDate.getDate(),
+          startTime.getHours(),
+          startTime.getMinutes()
         )
       );
 
-      /*default deadlines in case the user does not want to specify
-      category: school -> next week same day and time
-      category: work -> the next friday at 5pm (end of day)
-      category: other -> same day at 8pm (end of day)
-      */
-      let deadlineTimestamp;
-      if (category === "school") {
-        const schoolDeadline = new Date(startDate);
-        schoolDeadline.setDate(startDate.getDate() + 7);
-        deadlineTimestamp = Timestamp.fromDate(schoolDeadline);
-      } else if (category === "work") {
-        const workDeadline = new Date(startDate);
-        workDeadline.setDate(
-          workDeadline.getDate() + ((5 - workDeadline.getDay() + 7) % 7)
-        );
-        workDeadline.setHours(17, 0, 0, 0); // 5 PM on the next Friday
-        deadlineTimestamp = Timestamp.fromDate(workDeadline);
-      } else {
-        const otherDeadline = new Date(startDate);
-        otherDeadline.setHours(20, 0, 0, 0); // 8 PM on the same day
-        deadlineTimestamp = Timestamp.fromDate(otherDeadline);
-      }
+      const deadlineTimestamp = Timestamp.fromDate(
+        new Date(
+          deadlineDate.getFullYear(),
+          deadlineDate.getMonth(),
+          deadlineDate.getDate(),
+          deadlineTime.getHours(),
+          deadlineTime.getMinutes()
+        )
+      );
 
       await addDoc(collection(db, `calendars/${calendarId}/events`), {
         description,
@@ -141,7 +133,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
           onChangeText={setLocation}
         />
       </View>
-      
+
       <View style={styles.dateTimeContainer}>
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Start Date</Text>
@@ -169,7 +161,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             />
           )}
         </View>
-        
+
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Time</Text>
           <TouchableOpacity
@@ -225,7 +217,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             />
           )}
         </View>
-     
+
         <View style={styles.inputContainerHalf}>
           <Text style={styles.label}>Time</Text>
           <TouchableOpacity
@@ -233,9 +225,7 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
             onPress={() => setShowDeadlineTimePicker(true)}
           >
             <Text style={styles.datePickerText}>
-              {deadlineTime
-                ? deadlineTime.toTimeString().slice(0, 5)
-                : "Select Time"}
+              {deadlineTime ? deadlineTime.toTimeString().slice(0, 5) : "Select Time"}
             </Text>
           </TouchableOpacity>
           {showDeadlineTimePicker && (
