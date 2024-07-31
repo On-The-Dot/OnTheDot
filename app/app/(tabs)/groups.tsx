@@ -3,40 +3,29 @@ import Header from "@/components/Header";
 import StudyGroupTab from "@/components/StudyGroupTab";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
-import { db } from "../config/firebase_setup";
-import { collection, doc, setDoc, getDocs, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
-import { useState, useEffect } from "react";
 
-interface StudyGroup {
-  id: string;
-  description: string;
-  members: Array<string>;
-  name: string;
-  type: string;
-}
 
 export default function GroupsPage() {
-  const [studyGroups, setStudyGroups] = useState<StudyGroup[]>([]);
-
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const groupsSnapshot = await getDocs(collection(db, "studyGroups"));
-        const groupsArray = groupsSnapshot.docs.map((group: QueryDocumentSnapshot<DocumentData>) => ({id: group.id, ...group.data(), })) as StudyGroup[];
-        
-        setStudyGroups(groupsArray);
-      } catch (error) {
-        console.error("Error fetching study groups: ", error)
-      }
-    };
-
-    fetchGroups();
-  }, [])
-  
-  
   const onPress = () => {
 
   }
+  let fakeGroups = [
+    {
+      name: "SNHU", 
+      numOfMembers: 3, 
+      status: "member"
+    },
+    {
+      name: "Fashion", 
+      numOfMembers: 24, 
+      status: "join"
+    },
+    {
+      name: "Literature",
+      numOfMembers: 13,
+      status: "join"
+    }
+  ]
 
   return (
     <View
@@ -76,19 +65,16 @@ export default function GroupsPage() {
           marginTop: 20,
         }}
       >
-        {studyGroups.map((group) => {
+        {fakeGroups.map((group) => {
           return (
             <Link href="/index" asChild>
               <View
                 style={{
                   backgroundColor: "rgba(215,192,174,0.47)",
                   width: "87%",
-                  // height: 100,
+                  height: 100,
                   margin: 6,
-                  paddingTop: 13,
-                  paddingLeft: 13,
-                  paddingRight: 13,
-                  paddingBottom: 8,
+                  padding: 13,
                 }}
               >
                 <Text
@@ -99,12 +85,11 @@ export default function GroupsPage() {
                 >
                   {group.name}
                 </Text>
-                <Text>{group.description}</Text>
-                <Text style={{ color: "rgba(17,16,16,0.60)", marginTop: 15 }}>
-                  {group.members.length} members
-                </Text>
+                <Text>{group.numOfMembers} members</Text>
+                <Text>{group.status}</Text>
               </View>
             </Link>
+            
           );
         })}
       </View>
