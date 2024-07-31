@@ -17,7 +17,7 @@ const ProgressTrackerPage = () => {
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
         <StatusBar hidden={true} />
-        <Text style={styles.title}>Weekly Time Spent</Text>
+        <Text style={styles.title}>Weekly Tasks Overview</Text>
         <TimeSpentChart />
         <Text style={styles.title}>Tasks In Progress</Text>
 
