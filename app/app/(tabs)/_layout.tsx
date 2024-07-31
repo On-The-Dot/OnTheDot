@@ -1,6 +1,5 @@
 import { Tabs } from "expo-router";
 import React from "react";
-
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -33,24 +32,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="groups"
+        name="analytics"
         options={{
-          title: "Study Groups",
+          title: "Progress",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "search" : "search-outline"}
+              name={focused ? "bar-chart" : "bar-chart"}
               color={color}
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="analytics"
+        name="groups"
         options={{
-          title: "Progress Tracker",
+          title: "Study Groups",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "bar-chart" : "bar-chart"}
+              name={focused ? "search" : "search-outline"}
               color={color}
             />
           ),
