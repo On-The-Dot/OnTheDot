@@ -11,22 +11,22 @@ const TabLayout = () => {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: true,
-        headerStyle: { backgroundColor: 'rgba(150,126,118,0.59)' },
-        headerTitleStyle: { fontWeight: 800, color: 'white', fontSize: 27 },
+        headerStyle: { backgroundColor: "rgba(150,126,118,0.59)" },
+        headerTitleStyle: { fontWeight: 800, color: "white", fontSize: 27 },
         tabBarStyle: {
-          backgroundColor: 'rgba(183,196,207,1.00)',
+          backgroundColor: "rgba(183,196,207,1.00)",
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Calendar',
+          title: "Calendar",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'calendar' : 'calendar-outline'}
+              name={focused ? "calendar" : "calendar-outline"}
               color={color}
             />
           ),
@@ -35,10 +35,10 @@ const TabLayout = () => {
       <Tabs.Screen
         name="analytics"
         options={{
-          title: 'Progress',
+          title: "Progress",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'bar-chart' : 'bar-chart'}
+              name={focused ? "bar-chart" : "bar-chart"}
               color={color}
             />
           ),
@@ -47,10 +47,10 @@ const TabLayout = () => {
       <Tabs.Screen
         name="groups"
         options={{
-          title: 'Study Groups',
+          title: "Study Groups",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? 'search' : 'search-outline'}
+              name={focused ? "search" : "search-outline"}
               color={color}
             />
           ),
@@ -59,11 +59,12 @@ const TabLayout = () => {
       <Tabs.Screen
         name="account"
         options={{
-          title: 'Account',
+          title: "Account",
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
-              name={focused ? 'account' : 'account'}
+              name={focused ? "account" : "account"}
               color={color}
+              size={36}
             />
           ),
         }}
