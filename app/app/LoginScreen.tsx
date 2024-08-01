@@ -7,7 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { auth } from "../config/firebase_setup";
+import { auth } from "./config/firebase_setup";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 
@@ -29,7 +29,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../../assets/images/OnTheDot logo.png")}
+        source={require("../assets/images/OnTheDot logo.png")}
         style={styles.logo}
       />
 
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#f5f5f5",
   },
   logo: {
     width: 200,

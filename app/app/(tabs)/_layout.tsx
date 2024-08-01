@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const TabLayout = () => {
   const colorScheme = useColorScheme();
@@ -56,12 +57,12 @@ const TabLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="account"
         options={{
-          title: 'Settings',
+          title: 'Account',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon
-              name={focused ? 'settings' : 'settings'}
+            <MaterialCommunityIcons
+              name={focused ? 'account' : 'account'}
               color={color}
             />
           ),

@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, TextInput, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { auth, db } from "../config/firebase_setup";
+import { auth, db } from "./config/firebase_setup";
 import { AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { Controller, useForm } from "react-hook-form";
 import { doc, setDoc, Timestamp, collection } from "firebase/firestore";
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
         padding: 20,
-        backgroundColor: '#f8f8f8',
+        backgroundColor: "#f5f5f5",
     },
     header: {
         fontSize: 24,

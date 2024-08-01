@@ -17,6 +17,7 @@ import {
 } from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ModalDropdown from "react-native-modal-dropdown";
+import { fetchCalendarId } from "./fetchCalendarId";
 
 type EditTaskScreenProps = {
   closeEditTaskModal: () => void;
@@ -41,14 +42,24 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showDeadlineDatePicker, setShowDeadlineDatePicker] = useState(false);
   const [showDeadlineTimePicker, setShowDeadlineTimePicker] = useState(false);
+  const [calendarId, setCalendarId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (taskId) {
+    const loadCalendarId = async () => {
+      const id = await fetchCalendarId();
+      setCalendarId(id);
+    };
+
+    loadCalendarId();
+  }, []);
+
+  useEffect(() => {
+    if (calendarId && taskId) {
       const fetchTaskDetails = async () => {
         try {
-          const docRef = doc(db, `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`);
+          const docRef = doc(db, `calendars/${calendarId}/events/${taskId}`);
           const docSnap = await getDoc(docRef);
-
+  
           if (docSnap.exists()) {
             const taskData = docSnap.data();
             setDescription(taskData.description || "");
@@ -69,12 +80,10 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
           Alert.alert("Error", "Failed to fetch task details");
         }
       };
-
+  
       fetchTaskDetails();
-    } else {
-      Alert.alert("Error", "Task ID is undefined");
-    }
-  }, [taskId]);
+    } 
+  }, [calendarId, taskId]);
 
   const handleEditTask = async () => {
     if (
@@ -110,7 +119,7 @@ const EditTaskScreen: React.FC<EditTaskScreenProps> = ({
         )
       );
 
-      const docRef = doc(db, `calendars/SKoQ3595MveSj0e8f1C7/events/${taskId}`);
+      const docRef = doc(db, `calendars/${calendarId}/events/${taskId}`);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
