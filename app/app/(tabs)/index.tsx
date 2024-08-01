@@ -25,6 +25,7 @@ import { format, parseISO } from "date-fns";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../config/firebase_setup";
 
+
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
@@ -125,48 +126,59 @@ export default function HomeScreen() {
 
   const updateMarkedDates = (tasks: any[]) => {
     const dates: { [key: string]: any } = {};
-
+    
+    // Function to get the color based on priority
+    const getColorByPriority = (priority: string) => {
+      switch (priority) {
+        case "high":
+          return "red";
+        case "medium":
+          return "orange";
+        case "low":
+          return "yellow";
+        default:
+          return "grey";
+      }
+    };
+  
+    // Function to determine the highest priority color between two colors
+    const getHighestPriorityColor = (color1: string, color2: string) => {
+      const priorityOrder = ["grey", "yellow", "orange", "red"];
+      const index1 = priorityOrder.indexOf(color1);
+      const index2 = priorityOrder.indexOf(color2);
+      return index1 > index2 ? color1 : color2;
+    };
+  
     tasks.forEach((task) => {
       const startDate = format(task.start_time.toDate(), "yyyy-MM-dd");
       const endDate = format(task.deadline.toDate(), "yyyy-MM-dd");
-      let color;
-
-      switch (task.priority) {
-        case "high":
-          color = "red";
-          break;
-        case "medium":
-          color = "orange";
-          break;
-        case "low":
-          color = "yellow";
-          break;
-        default:
-          color = "grey";
-          break;
-      }
-
-      if (!dates[startDate]) {
-        dates[startDate] = { dots: [] };
-      }
-      if (!dates[endDate]) {
-        dates[endDate] = { dots: [] };
-      }
-
-      dates[startDate].dots.push({ color });
-      dates[endDate].dots.push({ color });
-
+      const taskColor = getColorByPriority(task.priority);
+  
+      // Function to add or update the dot color for a given date
+      const addOrUpdateDot = (date: string) => {
+        if (!dates[date]) {
+          dates[date] = { dots: [{ color: taskColor }] };
+        } else {
+          const existingColor = dates[date].dots[0].color;
+          const highestColor = getHighestPriorityColor(existingColor, taskColor);
+          dates[date].dots = [{ color: highestColor }];
+        }
+      };
+  
+      // Add or update dot for start and end dates
+      addOrUpdateDot(startDate);
+      addOrUpdateDot(endDate);
+  
+      // Add or update dots for the range of dates
       const dateRange = getDatesBetween(startDate, endDate);
       dateRange.forEach((date) => {
-        if (!dates[date]) {
-          dates[date] = { dots: [] };
-        }
-        dates[date].dots.push({ color });
+        addOrUpdateDot(date);
       });
     });
+  
     setMarkedDates(dates);
   };
-
+  
   const getDatesBetween = (startDate: string, endDate: string) => {
     const dates = [];
     let currentDate = new Date(startDate);
@@ -177,6 +189,7 @@ export default function HomeScreen() {
     }
     return dates;
   };
+  
 
   return (
     <View style={styles.container}>
@@ -200,9 +213,9 @@ export default function HomeScreen() {
             arrowColor: "#8e44ad",
             monthTextColor: "#333333",
             indicatorColor: "#007bff",
-            textDayFontFamily: "Arial",
-            textMonthFontFamily: "Arial",
-            textDayHeaderFontFamily: "Arial",
+            textDayFontFamily: "SpaceMono",
+            textMonthFontFamily: "SpaceMono",
+            textDayHeaderFontFamily: "SpaceMono",
             textDayFontWeight: "400",
             textMonthFontWeight: "600",
             textDayHeaderFontWeight: "400",
@@ -356,7 +369,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    fontFamily: "Arial",
+    fontFamily: "SpaceMono",
   },
   taskContainer: {
     flex: 1,

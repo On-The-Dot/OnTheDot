@@ -44,7 +44,9 @@ export default function Settings() {
       <View style={styles.content}>
         {userInfo ? (
           <>
-            <Text style={styles.infoText}>First Name: {userInfo.first_name}</Text>
+            <Text style={styles.infoText}>
+              First Name: {userInfo.first_name}
+            </Text>
             <Text style={styles.infoText}>Last Name: {userInfo.last_name}</Text>
             <Text style={styles.infoText}>Email: {userInfo.email}</Text>
             <Text style={styles.infoText}>School: {userInfo.school}</Text>
@@ -61,9 +63,9 @@ export default function Settings() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(215,192,174,0.40)',
-    width: '100%',
-    height: '100%',
+    backgroundColor: "rgba(215,192,174,0.40)",
+    width: "100%",
+    height: "100%",
   },
   content: {
     padding: 20,
