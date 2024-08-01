@@ -19,7 +19,7 @@ const LoginScreen = () => {
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        navigation.navigate("Home");
+        navigation.navigate('index' as never);
       })
       .catch((error) => {
         alert(error.message);
@@ -52,7 +52,7 @@ const LoginScreen = () => {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+      <TouchableOpacity onPress={() => navigation.navigate('signUp' as never) }>
         <Text style={styles.registerText}>Don't have an account? Register</Text>
       </TouchableOpacity>
     </View>

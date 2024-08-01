@@ -1,9 +1,9 @@
 import React from "react";
-import { Button, Text, TextInput, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import {auth, db} from "./config/firebase_setup";
+import { Text, TextInput, View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { auth, db } from "../config/firebase_setup";
 import { AuthError, createUserWithEmailAndPassword } from "firebase/auth";
 import { Controller, useForm } from "react-hook-form";
-import { doc, setDoc, Timestamp, addDoc, collection } from "firebase/firestore";
+import { doc, setDoc, Timestamp, collection } from "firebase/firestore";
 import { useNavigation } from '@react-navigation/native';
 
 interface FormValues {
@@ -32,7 +32,6 @@ function SignUp() {
     const navigation = useNavigation();
 
     const onSubmit = async (values: FormValues) => {
-        console.log('Form Values:', values);
         try {
             // Create user with email and password
             const userCredential = await createUserWithEmailAndPassword(
@@ -60,12 +59,9 @@ function SignUp() {
                 school: values.school,
                 email: values.email,
                 created_at: Timestamp.fromDate(new Date()), 
-                calendarId: calendarDocRef.id // Store the calendar ID
+                calendarId: calendarDocRef.id 
             });
 
-            console.log('User UID:', uid);
-            console.log('Calendar ID:', calendarDocRef.id); 
-            // Add additional logic here (e.g., navigate to another screen)
             navigation.navigate('LoginScreen' as never); 
         } catch (e) {
             const error = e as AuthError;
@@ -161,6 +157,7 @@ function SignUp() {
                             placeholder="Enter your email address" 
                             value={value} 
                             style={styles.input}
+                            keyboardType="email-address"
                         />
                     </View>
                 )}
@@ -211,9 +208,9 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 45,
-        borderColor: '#ccc',
+        borderColor: '#ddd',
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 10,
         paddingHorizontal: 10,
         backgroundColor: '#fff',
     },
@@ -223,11 +220,12 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     button: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#8e44ad', 
         paddingVertical: 15,
-        borderRadius: 5,
+        borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: 20,
     },
     buttonText: {
         color: '#fff',

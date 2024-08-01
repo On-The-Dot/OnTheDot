@@ -3,6 +3,7 @@ import { View, SafeAreaView, Text, StyleSheet, TouchableOpacity } from "react-na
 import { getAuth, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase_setup";
+import { useNavigation } from "@react-navigation/native";
 
 interface UserInfo {
   firstName: string;
@@ -12,6 +13,7 @@ interface UserInfo {
 }
 
 export default function Settings() {
+  const navigation = useNavigation();
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   useEffect(() => {
@@ -31,7 +33,8 @@ export default function Settings() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      // Optionally, navigate to the login screen after logout
+        navigation.navigate('LoginScreen' as never);
+  
     } catch (error) {
       console.error("Error logging out: ", error);
     }
