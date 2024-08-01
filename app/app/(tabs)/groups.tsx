@@ -87,8 +87,8 @@ export default function GroupsPage() {
       >
         {studyGroups.map((group) => {
           return (
-            <Link href="/index" asChild>
               <View
+                key={group.id}
                 style={{
                   backgroundColor: "rgba(215,192,174,0.47)",
                   width: "87%",
@@ -113,7 +113,6 @@ export default function GroupsPage() {
                   {group.members.length} members
                 </Text>
               </View>
-            </Link>
           );
         })}
       </View>
