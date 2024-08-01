@@ -22,8 +22,11 @@ import AddTaskScreen from "../../components/AddTaskScreen";
 import EditTaskScreen from "../../components/EditTaskScreen";
 import SyncCalendarScreen from "../../components/SyncCalendarScreen";
 import { format, parseISO } from "date-fns";
-import { deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebase_setup";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { fetchCalendarId } from "@/components/fetchCalendarId";
+import { updateMarkedDates } from "../../components/dateUtils";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -38,10 +41,25 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [currentTask, setCurrentTask] = useState<any>(null);
   const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
+  const [calendarId, setCalendarId] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
 
-  //hard-coded the calendarId for now but this should auto-populate
-  //depending on which user is logged in
-  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
+  const auth = getAuth();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user);
+        const id = await fetchCalendarId();
+        setCalendarId(id);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
 
   //format date: July 27 2024
   const formattedDate = format(parseISO(selectedDate), "MMMM dd yyyy");
@@ -115,69 +133,19 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const fetchTasksData = async () => {
-      const tasksData = await fetchTasks(selectedDate, calendarId);
-      setTasks(tasksData);
-      updateMarkedDates(tasksData);
+      if (calendarId) {
+        try {
+          const tasksData = await fetchTasks(selectedDate, calendarId);
+          setTasks(tasksData);
+          updateMarkedDates(tasksData, setMarkedDates);
+        } catch (error) {
+          console.error("Error fetching tasks:", error);
+        }
+      }
     };
 
     fetchTasksData();
-  }, [selectedDate, calendarId]);
-
-const updateMarkedDates = (tasks: any[]) => {
-    const dates: { [key: string]: any } = {};
-    
-    tasks.forEach((task) => {
-      const startDate = format(task.start_time.toDate(), "yyyy-MM-dd");
-      const endDate = format(task.deadline.toDate(), "yyyy-MM-dd");
-      let color;
-
-      switch (task.priority) {
-        case "high":
-          color = "red";
-          break;
-        case "medium":
-          color = "orange";
-          break;
-        case "low":
-          color = "yellow";
-          break;
-        default:
-          color = "grey";
-          break;
-      }
-
-      if (!dates[startDate]) {
-        dates[startDate] = { dots: [] };
-      }
-      if (!dates[endDate]) {
-        dates[endDate] = { dots: [] };
-      }
-
-      dates[startDate].dots.push({ color });
-      dates[endDate].dots.push({ color });
-
-      const dateRange = getDatesBetween(startDate, endDate);
-      dateRange.forEach((date) => {
-        if (!dates[date]) {
-          dates[date] = { dots: [] };
-        }
-        dates[date].dots.push({ color });
-      });
-    });
-    setMarkedDates(dates);
-  };
-
-  const getDatesBetween = (startDate: string, endDate: string) => {
-    const dates = [];
-    let currentDate = new Date(startDate);
-    const stopDate = new Date(endDate);
-    while (currentDate <= stopDate) {
-      dates.push(format(currentDate, "yyyy-MM-dd"));
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dates;
-  };
-
+  }, [selectedDate, calendarId, user]);
 
   return (
     <View style={styles.container}>
@@ -201,9 +169,9 @@ const updateMarkedDates = (tasks: any[]) => {
             arrowColor: "#8e44ad",
             monthTextColor: "#333333",
             indicatorColor: "#007bff",
-            textDayFontFamily: "Arial",
-            textMonthFontFamily: "Arial",
-            textDayHeaderFontFamily: "Arial",
+            textDayFontFamily: "SpaceMono",
+            textMonthFontFamily: "SpaceMono",
+            textDayHeaderFontFamily: "SpaceMono",
             textDayFontWeight: "400",
             textMonthFontWeight: "600",
             textDayHeaderFontWeight: "400",
@@ -320,7 +288,6 @@ const updateMarkedDates = (tasks: any[]) => {
         <EditTaskScreen
           closeEditTaskModal={closeEditTaskModal}
           taskId={currentTask?.id}
-         
         />
       </Modal>
     </View>
@@ -358,7 +325,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    fontFamily: "Arial",
+    fontFamily: "SpaceMono",
   },
   taskContainer: {
     flex: 1,
