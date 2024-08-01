@@ -4,7 +4,14 @@ import StudyGroupTab from "@/components/StudyGroupTab";
 import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { db } from "../config/firebase_setup";
-import { collection, doc, setDoc, getDocs, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  setDoc,
+  getDocs,
+  QueryDocumentSnapshot,
+  DocumentData,
+} from "firebase/firestore";
 import { useState, useEffect } from "react";
 
 interface StudyGroup {
@@ -22,21 +29,23 @@ export default function GroupsPage() {
     const fetchGroups = async () => {
       try {
         const groupsSnapshot = await getDocs(collection(db, "studyGroups"));
-        const groupsArray = groupsSnapshot.docs.map((group: QueryDocumentSnapshot<DocumentData>) => ({id: group.id, ...group.data(), })) as StudyGroup[];
-        
+        const groupsArray = groupsSnapshot.docs.map(
+          (group: QueryDocumentSnapshot<DocumentData>) => ({
+            id: group.id,
+            ...group.data(),
+          })
+        ) as StudyGroup[];
+
         setStudyGroups(groupsArray);
       } catch (error) {
-        console.error("Error fetching study groups: ", error)
+        console.error("Error fetching study groups: ", error);
       }
     };
 
     fetchGroups();
-  }, [])
-  
-  
-  const onPress = () => {
+  }, []);
 
-  }
+  const onPress = () => {};
 
   return (
     <View
@@ -115,7 +124,7 @@ export default function GroupsPage() {
           alignSelf: "flex-end",
           position: "absolute",
           bottom: 10,
-          right: 10
+          right: 10,
         }}
       >
         <Button
