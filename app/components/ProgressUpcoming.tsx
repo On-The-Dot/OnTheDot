@@ -26,10 +26,12 @@ export default function UpcomingTasks() {
           <TaskBox
             tasks={tasks}
             onEdit={function (task): void {
-              throw new Error("Function not implemented.");
+              alert("Please edit task on Calendar screen.");
+              // throw new Error("Function not implemented.");
             }}
             onDelete={function (taskId: string): void {
-              throw new Error("Function not implemented.");
+              alert("Please delete task from Calendar screen.");
+              // throw new Error("Function not implemented.");
             }}
           />
         </ScrollView>

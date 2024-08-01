@@ -6,6 +6,7 @@ import {
   getCountFromServer, // https://firebase.google.com/docs/firestore/query-data/aggregation-queries
 } from "firebase/firestore";
 import { db } from "@/app/config/firebase_setup";
+// import { ChartData } from "react-native-chart-kit/dist/HelperTypes";
 
 function getPriorWeekDate() {
   const today = new Date();
@@ -123,6 +124,22 @@ async function buildCategoryData() {
   return databaseData;
 }
 
+var taskCategoryCount: {
+  name: string;
+  tasks: number;
+  color: string;
+  legendFontColor: string;
+  legendFontSize: number;
+}[][] = [];
+
+const data = buildCategoryData();
+data.then((value) => {
+  console.log(value);
+  taskCategoryCount.push(value);
+});
+
+console.log(taskCategoryCount);
+
 async function buildPriorityData() {
   const tasksRef = collection(db, "calendars/SKoQ3595MveSj0e8f1C7/events");
 
@@ -175,47 +192,39 @@ async function buildPriorityData() {
     highPrioritySnapshot.data().count
   );
 
-  const databaseData = {
-    labels: ["no priority", "low priority", "medium priority", "high priority"],
-    datasets: [
-      {
-        data: [
-          noPrioritySnapshot.data().count,
-          lowPrioritySnapshot.data().count,
-          mediumPrioritySnapshot.data().count,
-          highPrioritySnapshot.data().count,
-        ],
-      },
-    ],
-  };
+  const databaseData = [
+    {
+      labels: [
+        "no priority",
+        "low priority",
+        "medium priority",
+        "high priority",
+      ],
+      datasets: [
+        {
+          data: [
+            noPrioritySnapshot.data().count,
+            lowPrioritySnapshot.data().count,
+            mediumPrioritySnapshot.data().count,
+            highPrioritySnapshot.data().count,
+          ],
+        },
+      ],
+    },
+  ];
   return databaseData;
 }
 
-var taskCategoryCount: {
-  name: string;
-  tasks: number;
-  color: string;
-  legendFontColor: string;
-  legendFontSize: number;
-}[][] = [];
-
-const data = buildCategoryData();
-data.then((value) => {
-  console.log(value);
-  taskCategoryCount.push(value);
-});
-
-console.log(taskCategoryCount);
-
-var taskPriorityCount: { labels: string[]; datasets: { data: number[] }[] }[] =
-  [];
+var prioritydata: { labels: string[]; datasets: { data: number[] }[] }[][] = [];
 
 const pdata = buildPriorityData();
 pdata.then((value) => {
   console.log(value);
-  taskPriorityCount.push(value);
+  prioritydata.push(value);
 });
 
-console.log(taskPriorityCount);
+console.log("priority data: ", prioritydata);
 
-export { taskCategoryCount, taskPriorityCount };
+export { taskCategoryCount, prioritydata };
+
+// potential problem: "Cannot read 'map' of undefined' error" appears on save then goes away if save again

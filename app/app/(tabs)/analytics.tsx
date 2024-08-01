@@ -31,10 +31,6 @@ const ProgressTrackerPage = () => {
         />
         <Text style={styles.title}>Upcoming Tasks</Text>
         <UpcomingTasks />
-        <TextInput
-          style={styles.textbox}
-          defaultValue="Enter any notes here ..."
-        />
       </View>
     </ScrollView>
   );
