@@ -65,7 +65,7 @@ export default function AccountPage() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUserInfo(null); // Clear user info
+      setUserInfo(null); 
       await AsyncStorage.removeItem('currentUser');
       navigation.navigate('LoginScreen' as never);
     } catch (error) {
@@ -79,7 +79,7 @@ export default function AccountPage() {
   };
 
   const handleSignUp = () => {
-    navigation.navigate('SignUp' as never);
+    navigation.navigate('signUp' as never);
   };
 
   if (loading) {
