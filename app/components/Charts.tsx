@@ -1,6 +1,6 @@
 import { Dimensions } from "react-native";
-import { PieChart } from "react-native-chart-kit"; // https://www.npmjs.com/package/react-native-chart-kit
-import taskCount from "./fetchWeeklyTasks";
+import { PieChart, BarChart } from "react-native-chart-kit"; // https://www.npmjs.com/package/react-native-chart-kit
+import { taskCategoryCount, taskPriorityCount } from "./fetchWeeklyTasks";
 
 /* hardcode
 const data = [
@@ -48,14 +48,29 @@ const chartConfig = {
 export function TimeSpentChart() {
   return (
     <PieChart
-      data={taskCount[0]}
+      data={taskCategoryCount[0]}
       width={Dimensions.get("window").width}
       height={220}
       chartConfig={chartConfig}
-      accessor={"tasks"} // weekly // instead of "hours" (future implementation?)
+      accessor={"tasks"} // weekly // instead of "time" (future implementation?)
       backgroundColor={"transparent"}
       paddingLeft={"0"}
       // center={[10, 50]}
+    />
+  );
+}
+
+export function TaskPriorityChart() {
+  return (
+    <BarChart
+      data={taskPriorityCount[0]}
+      width={Dimensions.get("window").width}
+      height={220}
+      fromZero={true}
+      yAxisLabel="$"
+      yAxisSuffix=""
+      chartConfig={chartConfig}
+      verticalLabelRotation={30}
     />
   );
 }

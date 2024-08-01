@@ -60,7 +60,7 @@ const intervalStartTimestamp = Timestamp.fromDate(intervalStartDate);
 const currentDate = new Date();
 const currentTimestamp = Timestamp.fromDate(currentDate);
 
-async function buildData() {
+async function buildCategoryData() {
   const tasksRef = collection(db, "calendars/SKoQ3595MveSj0e8f1C7/events");
 
   const schoolq = query(
@@ -123,7 +123,75 @@ async function buildData() {
   return databaseData;
 }
 
-var taskCount: {
+async function buildPriorityData() {
+  const tasksRef = collection(db, "calendars/SKoQ3595MveSj0e8f1C7/events");
+
+  const noneq = query(
+    tasksRef,
+    where("priority", "==", "no priority"),
+    where("start_time", ">=", intervalStartTimestamp),
+    where("start_time", "<=", currentTimestamp)
+  );
+
+  const noPrioritySnapshot = await getCountFromServer(noneq);
+  console.log("count of no priority events: ", noPrioritySnapshot.data().count);
+
+  const lowq = query(
+    tasksRef,
+    where("priority", "==", "low"),
+    where("start_time", ">=", intervalStartTimestamp),
+    where("start_time", "<=", currentTimestamp)
+  );
+
+  const lowPrioritySnapshot = await getCountFromServer(lowq);
+  console.log(
+    "count of low priority events: ",
+    lowPrioritySnapshot.data().count
+  );
+
+  const midq = query(
+    tasksRef,
+    where("priority", "==", "medium"),
+    where("start_time", ">=", intervalStartTimestamp),
+    where("start_time", "<=", currentTimestamp)
+  );
+
+  const mediumPrioritySnapshot = await getCountFromServer(midq);
+  console.log(
+    "count of medium priority events: ",
+    mediumPrioritySnapshot.data().count
+  );
+
+  const highq = query(
+    tasksRef,
+    where("priority", "==", "high"),
+    where("start_time", ">=", intervalStartTimestamp),
+    where("start_time", "<=", currentTimestamp)
+  );
+
+  const highPrioritySnapshot = await getCountFromServer(highq);
+  console.log(
+    "count of high priority events: ",
+    highPrioritySnapshot.data().count
+  );
+
+  const databaseData = {
+    labels: ["no priority", "low priority", "medium priority", "high priority"],
+    datasets: [
+      {
+        data: [
+          noPrioritySnapshot.data().count,
+          lowPrioritySnapshot.data().count,
+          mediumPrioritySnapshot.data().count,
+          highPrioritySnapshot.data().count,
+        ],
+      },
+    ],
+  };
+  return databaseData;
+}
+
+var taskCategoryCount: {
   name: string;
   tasks: number;
   color: string;
@@ -131,11 +199,23 @@ var taskCount: {
   legendFontSize: number;
 }[][] = [];
 
-const data = buildData();
+const data = buildCategoryData();
 data.then((value) => {
   console.log(value);
-  taskCount.push(value);
+  taskCategoryCount.push(value);
 });
 
-console.log(taskCount);
-export default taskCount;
+console.log(taskCategoryCount);
+
+var taskPriorityCount: { labels: string[]; datasets: { data: number[] }[] }[] =
+  [];
+
+const pdata = buildPriorityData();
+pdata.then((value) => {
+  console.log(value);
+  taskPriorityCount.push(value);
+});
+
+console.log(taskPriorityCount);
+
+export { taskCategoryCount, taskPriorityCount };
