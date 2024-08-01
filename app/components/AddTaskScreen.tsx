@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,6 +11,7 @@ import { db } from "@/app/config/firebase_setup";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ModalDropdown from "react-native-modal-dropdown";
+import { fetchCalendarId } from "./fetchCalendarId";
 
 type AddTaskScreenProps = {
   closeTaskModal: () => void;
@@ -25,12 +26,21 @@ const AddTaskScreen: React.FC<AddTaskScreenProps> = ({ closeTaskModal }) => {
   const [deadlineTime, setDeadlineTime] = useState(new Date());
   const [category, setCategory] = useState("work");
   const [priority, setPriority] = useState("no priority");
-  const [calendarId, setCalendarId] = useState("SKoQ3595MveSj0e8f1C7");
+  const [calendarId, setCalendarId] = useState<string | null>(null);
 
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showDeadlineDatePicker, setShowDeadlineDatePicker] = useState(false);
   const [showDeadlineTimePicker, setShowDeadlineTimePicker] = useState(false);
+
+  useEffect(() => {
+    const loadCalendarId = async () => {
+      const id = await fetchCalendarId();
+      setCalendarId(id);
+    };
+
+    loadCalendarId();
+  }, []);
 
   const handleAddTask = async () => {
     if (
