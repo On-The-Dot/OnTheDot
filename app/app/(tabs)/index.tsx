@@ -123,9 +123,9 @@ export default function HomeScreen() {
     fetchTasksData();
   }, [selectedDate, calendarId]);
 
-const updateMarkedDates = (tasks: any[]) => {
+  const updateMarkedDates = (tasks: any[]) => {
     const dates: { [key: string]: any } = {};
-    
+
     tasks.forEach((task) => {
       const startDate = format(task.start_time.toDate(), "yyyy-MM-dd");
       const endDate = format(task.deadline.toDate(), "yyyy-MM-dd");
@@ -177,7 +177,6 @@ const updateMarkedDates = (tasks: any[]) => {
     }
     return dates;
   };
-
 
   return (
     <View style={styles.container}>
@@ -320,7 +319,6 @@ const updateMarkedDates = (tasks: any[]) => {
         <EditTaskScreen
           closeEditTaskModal={closeEditTaskModal}
           taskId={currentTask?.id}
-         
         />
       </Modal>
     </View>

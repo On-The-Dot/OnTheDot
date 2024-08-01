@@ -3,7 +3,6 @@ import { View, SafeAreaView, Text, Button, StyleSheet } from "react-native";
 import { getAuth, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../config/firebase_setup";
-import Header from "@/components/Header";
 
 interface UserInfo {
   first_name: string;
