@@ -1,6 +1,9 @@
 import { Dimensions } from "react-native";
 import { PieChart, BarChart } from "react-native-chart-kit"; // https://www.npmjs.com/package/react-native-chart-kit
-import { taskCategoryCount, prioritydata } from "./fetchWeeklyTasks";
+import { buildCategoryData, buildPriorityData } from "./fetchWeeklyTasks";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
+import { fetchCalendarId } from "./fetchCalendarId";
 
 /* hardcode
 const data = [
@@ -46,9 +49,46 @@ const chartConfig = {
 };
 
 export function TimeSpentChart() {
+  const [calendarId, setCalendarId] = useState<string | null>(null);
+  const [categoryTasks, setTasks] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getCalendarId = async () => {
+      const id = await fetchCalendarId();
+      setCalendarId(id);
+    };
+    void getCalendarId();
+  }, []);
+
+  console.log("in analytics, calendar id: ", calendarId);
+
+  useEffect(() => {
+    const fetchTasksData = async () => {
+      const taskCategoryCount = await buildCategoryData(calendarId);
+      setTasks(taskCategoryCount);
+    };
+    fetchTasksData();
+  }, [calendarId]);
+
+  // var taskCategoryCount: {
+  //   name: string;
+  //   tasks: number;
+  //   color: string;
+  //   legendFontColor: string;
+  //   legendFontSize: number;
+  // }[][] = [];
+
+  // const data = buildCategoryData(calendarId);
+  // data.then((value) => {
+  //   console.log(value);
+  //   taskCategoryCount.push(value);
+  // });
+
+  console.log("category data: ", categoryTasks);
+
   return (
     <PieChart
-      data={taskCategoryCount[0]}
+      data={categoryTasks} // {taskCategoryCount[0]}
       width={Dimensions.get("window").width}
       height={220}
       chartConfig={chartConfig}
@@ -61,9 +101,41 @@ export function TimeSpentChart() {
 }
 
 export function TaskPriorityChart() {
+  const [calendarId, setCalendarId] = useState<string | null>(null);
+  const [priorityTasks, setTasks] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getCalendarId = async () => {
+      const id = await fetchCalendarId();
+      setCalendarId(id);
+    };
+    void getCalendarId();
+  }, []);
+
+  console.log("in analytics, calendar id: ", calendarId);
+
+  useEffect(() => {
+    const fetchTasksData = async () => {
+      const taskPriorityCount = await buildPriorityData(calendarId);
+      setTasks(taskPriorityCount);
+    };
+    fetchTasksData();
+  }, [calendarId]);
+
+  // const pdata = buildPriorityData(calendarId);
+  // var prioritydata: { labels: string[]; datasets: { data: number[] }[] }[][] =
+  //   [];
+
+  // pdata.then((value) => {
+  //   console.log(value);
+  //   prioritydata.push(value);
+  // });
+
+  console.log("priority data: ", priorityTasks);
+
   return (
     <BarChart
-      data={prioritydata[0][0]}
+      data={priorityTasks[0]}
       width={Dimensions.get("window").width}
       height={250}
       fromZero={true}
