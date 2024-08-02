@@ -27,11 +27,13 @@ import { db } from "../config/firebase_setup";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { fetchCalendarId } from "@/components/fetchCalendarId";
 import { updateMarkedDates } from "../../components/dateUtils";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const [selectedDate, setSelectedDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
+  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [taskModalVisible, setTaskModalVisible] = useState<boolean>(false);
   const [editTaskModalVisible, setEditTaskModalVisible] =
@@ -218,7 +220,7 @@ export default function HomeScreen() {
               <Text style={styles.modalButtonText}>Analysis</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Analysis Page")}
+                onPress={() => navigation.navigate('analytics' as never)}
               >
                 <MaterialCommunityIcons
                   name="chart-bubble"
@@ -232,7 +234,7 @@ export default function HomeScreen() {
               <Text style={styles.modalButtonText}>Study Groups</Text>
               <TouchableOpacity
                 style={styles.modalButton}
-                onPress={() => console.log("Study Groups")}
+                onPress={() => navigation.navigate('groups' as never)}
               >
                 <Ionicons name="book" size={24} color="#ffffff" />
               </TouchableOpacity>
