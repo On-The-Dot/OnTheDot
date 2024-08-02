@@ -19,7 +19,7 @@ export default function Header() {
           fontWeight: 800,
         }}
       >
-        Find A Study Group
+        Empty Header
       </Text>
     </View>
   );
